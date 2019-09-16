@@ -80,9 +80,9 @@ def main():
     gestionnaire_donnees.afficher_donnees_et_modele(np.arange(0, 1, 0.01), predictions_range, False)
 
     if m >= 0:
-        plt.suptitle('Resultat SANS recherche d\'hyperparametres')
+        plt.suptitle('Resultat SANS recherche d\'hyperparametres (M={})'.format(regression.M))
     else:
-        plt.suptitle('Resultat AVEC recherche d\'hyperparametres')
+        plt.suptitle('Resultat AVEC recherche d\'hyperparametres (M={})'.format(regression.M))
     plt.savefig('figure.png')
     plt.show()
 

@@ -2,7 +2,7 @@
 
 #####
 # Jeremie Beliveau-Lefebvre (04494470)
-# Sebastien Leblanc (Matricule)
+# Sebastien Leblanc         (18206273)
 ###
 
 import numpy as np
@@ -25,12 +25,11 @@ class Regression:
         NOTE : En mettant phi_x = x, on a une fonction de base lineaire qui fonctionne pour une regression lineaire
         """
         # AJOUTER CODE ICI
-        phi_x = [x**i for i in range(0,self.M+1)]
+        phi_x = x
+        if self.M > 0:
+            phi_x = [0,]+[x**i for i in range(0,self.M+1)]
 
-        if phi_x:
-            return np.array(phi_x)
-        else:
-            return x
+        return phi_x
 
     def recherche_hyperparametre(self, X, t):
         """
@@ -84,7 +83,7 @@ class Regression:
         if using_sklearn:
             clf = linear_model.Ridge(alpha=self.lamb)
             clf.fit(phi_x,t)
-            self.w = clf.coef_
+            self.w = clf.intercept_ + clf.coef_
         else:
             a = (self.lamb*np.identity(phi_x.shape[1]) + np.matmul(phi_x.transpose(),phi_x))
             b = np.matmul(phi_x.transpose(),t)
@@ -114,4 +113,5 @@ class Regression:
         la cible ``t`` et la prediction ``prediction``.
         """
         # AJOUTER CODE ICI
-        return 0.0
+        r2 = (t-prediction)**2
+        return r2
