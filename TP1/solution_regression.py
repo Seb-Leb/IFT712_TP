@@ -42,9 +42,39 @@ class Regression:
         t: vecteur de cibles
         """
         # AJOUTER CODE ICI
-        k = 10
+        # shuffle training set
+        D_train = list(zip(X,t))
+        random.shuffle(D_train)
+        # divide dataset into k equal portions
+        def k_fold_cross_val(D_train, m, k=10):
+            '''
+            Implementation of k-fold cross-validation algorythm.
+            D_train : shuffled training dataset
+            m: parameter for regression
+            k: cross validation parameter (number of equaly sized bins)
+            '''
+            len_D_train = len(D_train)
+            bin_size    = int(len_D_train / k)
+            for i in range(0, len_D_train, bin_size):
+                X_val, t_val = list(zip(*D_train[i:i+bin_size]))
+                D_cv   = D_train[:i]
+                MSEs   = []
+                if i+bin_size < len_D_train:
+                    D_cv += D_train[i+bin_size:]
+                X_cv,   t_cv   = list(zip(*D_cv))
+                self.M = m
+                self.entrainement(X_cv, t_cv)
+                t_pred = np.array([self.prediction(x) for x in X_val])
+                MSE = np.mean([self.erreur(t_v, t_p) for t_v, t_p in zip(t_val, t_pred)])
+                MSEs.append(MSE)
+            return np.mean(MSEs)
 
-        self.M = 1
+        cv_scores = {}
+        for m in range(1,11):
+            score = k_fold_cross_val(D_train, m)
+            cv_scores[score] = m
+
+        self.M = cv_scores[min(cv_scores.keys())]
 
     def entrainement(self, X, t, using_sklearn=False):
         """
