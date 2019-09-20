@@ -111,7 +111,7 @@ class Regression:
         self.w = [0, 1]
 
         if using_sklearn:
-            clf = linear_model.Ridge(alpha=self.lamb)
+            clf = linear_model.Ridge(alpha=self.lamb, fit_intercept=False)
             clf.fit(phi_x, t)
             self.w = clf.intercept_ + clf.coef_
         else:
