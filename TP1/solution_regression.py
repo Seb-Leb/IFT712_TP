@@ -27,7 +27,7 @@ class Regression:
         # AJOUTER CODE ICI
         phi_x = x
         if self.M > 0:
-            phi_x = [0,]+[x**i for i in range(0,self.M+1)]
+            phi_x = [0]+[x**i for i in range(0,self.M+1)]
 
         return phi_x
 
@@ -112,7 +112,7 @@ class Regression:
 
         if using_sklearn:
             clf = linear_model.Ridge(alpha=self.lamb)
-            clf.fit(phi_x,t)
+            clf.fit(phi_x, t)
             self.w = clf.intercept_ + clf.coef_
         else:
             a = (self.lamb*np.identity(phi_x.shape[1]) + np.matmul(phi_x.transpose(),phi_x))
