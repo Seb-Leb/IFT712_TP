@@ -65,6 +65,21 @@ class ClassifieurLineaire:
         if self.methode == 1:  # Classification generative
             print('Classification generative')
             # AJOUTER CODE ICI
+            n   = len(t_train)
+            n_2 = sum(t_train) # t=1
+            n_1 = n-n_2  # t=0
+
+            p1        = n_1 / (n_1 + n_2)
+            p2        = n_2 / (n_1 + n_2)
+            mu_1     = np.matrix(sum((x_train.transpose()*(1-t_train)).transpose()) / n_1)
+            mu_2     = np.matrix(sum((x_train.transpose()*t_train).transpose()) / n_2)
+            s_1      = sum((x-mu_1).transpose()*(x-mu_1) for n,x in enumerate(x_train) if t_train[n] == 0.)/n_1
+            s_2      = sum((x-mu_2).transpose()*(x-mu_2) for n,x in enumerate(x_train) if t_train[n] == 1.)/n_2
+            sigma    =  (n_1/n)*s_1 + (n_2/n)*s_2 + self.lamb*np.identity(x_train.shape[1])
+            sigma_inv = np.linalg.inv(sigma)
+            self.w   = sigma*(mu_1-mu_2).transpose()
+            self.w_0 = float((-1/2)*mu_1*sigma_inv*mu_1.transpose() + (-1/2)*mu_2*sigma_inv*mu_2.transpose() + np.log((p1/p2)))
+
 
         elif self.methode == 2:  # Perceptron + SGD, learning rate = 0.001, nb_iterations_max = 1000
             print('Perceptron')
@@ -73,6 +88,9 @@ class ClassifieurLineaire:
         else:  # Perceptron + SGD [sklearn] + learning rate = 0.001 + penalty 'l2' voir http://scikit-learn.org/
             print('Perceptron [sklearn]')
             # AJOUTER CODE ICI
+            clf = Perceptron(tol=1e-3, penalty='l2')
+            clf.fit(x_train, t_train)
+
 
         print('w = ', self.w, 'w_0 = ', self.w_0, '\n')
 
