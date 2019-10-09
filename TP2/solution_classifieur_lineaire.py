@@ -77,7 +77,7 @@ class ClassifieurLineaire:
             s_2      = sum((x-mu_2).transpose()*(x-mu_2) for n,x in enumerate(x_train) if t_train[n] == 1.)/n_2
             sigma    =  (n_1/n)*s_1 + (n_2/n)*s_2 + self.lamb*np.identity(x_train.shape[1])
             sigma_inv = np.linalg.inv(sigma)
-            self.w   = sigma*(mu_1-mu_2).transpose()
+            self.w   = np.array(sigma*(mu_1-mu_2).transpose())
             self.w_0 = float((-1/2)*mu_1*sigma_inv*mu_1.transpose() + (-1/2)*mu_2*sigma_inv*mu_2.transpose() + np.log((p1/p2)))
 
 
@@ -88,23 +88,29 @@ class ClassifieurLineaire:
             x_train = np.array([[1., *x] for x in x_train])
             eta     = 0.001
             iter_max = 1000
-            w = np.random.randn(3)
+            w = np.array([self.w_0, *self.w.transpose()]) #np.random.randn(3)
             k = 0
+            misclassified = True
             while misclassified and k <= iter_max:
                 k += 1
                 misclassified = False
-                for n in range(len(x_train)):
-                    y = np.matmul(self.w.transpose(), x_train[n])
+                for n in range(x_train.shape[0]):
+                    y = np.matmul(w.transpose(), x_train[n])
+
                     if y*t_train[n] < 0: # donnee mal classee
                         misclassified = True
-                        w = w + eta*t_train*x_train[n]
+                        w = w + eta*t_train[n]*x_train[n]
+            self.w_0 = w[0]
+            self.w   = w[1:]
 
 
         else:  # Perceptron + SGD [sklearn] + learning rate = 0.001 + penalty 'l2' voir http://scikit-learn.org/
             print('Perceptron [sklearn]')
             # AJOUTER CODE ICI
-            clf = Perceptron(tol=1e-3, penalty='l2')
+            clf = Perceptron(fit_intercept=True, tol=1e-3, penalty='l2')
             clf.fit(x_train, t_train)
+            self.w_0 = clf.intercept_
+            self.w   = clf.coef_.transpose()
 
 
         print('w = ', self.w, 'w_0 = ', self.w_0, '\n')
@@ -163,6 +169,7 @@ class ClassifieurLineaire:
         yy = pente * xx - self.w_0 / self.w[1]
         plt.plot(xx, yy)
         plt.title('Testing data')
+        plt.savefig('figure.png') #remove before submitting
 
         plt.show()
 
