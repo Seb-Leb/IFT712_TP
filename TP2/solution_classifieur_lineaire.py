@@ -84,6 +84,21 @@ class ClassifieurLineaire:
         elif self.methode == 2:  # Perceptron + SGD, learning rate = 0.001, nb_iterations_max = 1000
             print('Perceptron')
             # AJOUTER CODE ICI
+            t_train = np.array([1. if t == 1. else -1. for t in t_train])
+            x_train = np.array([[1., *x] for x in x_train])
+            eta     = 0.001
+            iter_max = 1000
+            w = np.random.randn(3)
+            k = 0
+            while misclassified and k <= iter_max:
+                k += 1
+                misclassified = False
+                for n in range(len(x_train)):
+                    y = np.matmul(self.w.transpose(), x_train[n])
+                    if y*t_train[n] < 0: # donnee mal classee
+                        misclassified = True
+                        w = w + eta*t_train*x_train[n]
+
 
         else:  # Perceptron + SGD [sklearn] + learning rate = 0.001 + penalty 'l2' voir http://scikit-learn.org/
             print('Perceptron [sklearn]')
@@ -106,7 +121,13 @@ class ClassifieurLineaire:
         et ``self.w_0`` afin de faire cette classification.
         """
         # AJOUTER CODE ICI
-        return 0
+        y = self.w_0 + np.matmul(self.w.transpose(), x)
+        if y > 0:
+            return 1
+        elif y < 0:
+            return 0
+        else:
+            raise Exception('The point submitted for classification is on the plane of the model.')
 
     @staticmethod
     def erreur(t, prediction):
