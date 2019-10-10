@@ -66,15 +66,15 @@ class ClassifieurLineaire:
             print('Classification generative')
             # AJOUTER CODE ICI
             n   = len(t_train)
-            n_2 = sum(t_train) # t=1
-            n_1 = n-n_2  # t=0
+            n_1 = sum(t_train) # t=1
+            n_2 = n-n_1        # t=0
 
-            p1        = n_1 / (n_1 + n_2)
-            p2        = n_2 / (n_1 + n_2)
+            p1        = n_1 / n
+            p2        = n_2 / n
             mu_1     = np.matrix(sum((x_train.transpose()*(1-t_train)).transpose()) / n_1)
             mu_2     = np.matrix(sum((x_train.transpose()*t_train).transpose()) / n_2)
-            s_1      = sum((x-mu_1).transpose()*(x-mu_1) for x,t in zip(x_train, t_train) if t == 0.)/n_1
-            s_2      = sum((x-mu_2).transpose()*(x-mu_2) for x,t in zip(x_train, t_train) if t == 1.)/n_2
+            s_1      = sum((x-mu_1).transpose()*(x-mu_1) for x,t in zip(x_train, t_train) if t == 1.)/n_1
+            s_2      = sum((x-mu_2).transpose()*(x-mu_2) for x,t in zip(x_train, t_train) if t == 0.)/n_2
             sigma    =  (n_1/n)*s_1 + (n_2/n)*s_2 + self.lamb*np.identity(x_train.shape[1])
             sigma_inv = np.linalg.inv(sigma)
             self.w   = np.array(sigma_inv*(mu_1-mu_2).transpose())
