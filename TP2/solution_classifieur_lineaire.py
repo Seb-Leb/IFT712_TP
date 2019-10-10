@@ -73,11 +73,11 @@ class ClassifieurLineaire:
             p2        = n_2 / (n_1 + n_2)
             mu_1     = np.matrix(sum((x_train.transpose()*(1-t_train)).transpose()) / n_1)
             mu_2     = np.matrix(sum((x_train.transpose()*t_train).transpose()) / n_2)
-            s_1      = sum((x-mu_1).transpose()*(x-mu_1) for n,x in enumerate(x_train) if t_train[n] == 0.)/n_1
-            s_2      = sum((x-mu_2).transpose()*(x-mu_2) for n,x in enumerate(x_train) if t_train[n] == 1.)/n_2
+            s_1      = sum((x-mu_1).transpose()*(x-mu_1) for x,t in zip(x_train, t_train) if t == 0.)/n_1
+            s_2      = sum((x-mu_2).transpose()*(x-mu_2) for x,t in zip(x_train, t_train) if t == 1.)/n_2
             sigma    =  (n_1/n)*s_1 + (n_2/n)*s_2 + self.lamb*np.identity(x_train.shape[1])
             sigma_inv = np.linalg.inv(sigma)
-            self.w   = np.array(sigma*(mu_1-mu_2).transpose())
+            self.w   = np.array(sigma_inv*(mu_1-mu_2).transpose())
             self.w_0 = float((-1/2)*mu_1*sigma_inv*mu_1.transpose() + (-1/2)*mu_2*sigma_inv*mu_2.transpose() + np.log((p1/p2)))
 
 
@@ -107,7 +107,7 @@ class ClassifieurLineaire:
         else:  # Perceptron + SGD [sklearn] + learning rate = 0.001 + penalty 'l2' voir http://scikit-learn.org/
             print('Perceptron [sklearn]')
             # AJOUTER CODE ICI
-            clf = Perceptron(fit_intercept=True, tol=1e-3, penalty='l2')
+            clf = Perceptron(eta0=0.001, penalty='l2')
             clf.fit(x_train, t_train)
             self.w_0 = clf.intercept_
             self.w   = clf.coef_.transpose()
@@ -130,10 +130,7 @@ class ClassifieurLineaire:
         y = self.w_0 + np.matmul(self.w.transpose(), x)
         if y > 0:
             return 1
-        elif y < 0:
-            return 0
-        else:
-            raise Exception('The point submitted for classification is on the plane of the model.')
+        return 0
 
     @staticmethod
     def erreur(t, prediction):
@@ -143,6 +140,8 @@ class ClassifieurLineaire:
         sont différentes, 0. sinon.
         """
         # AJOUTER CODE ICI
+        if t != prediction:
+            return 1
         return 0
 
     def afficher_donnees_et_modele(self, x_train, t_train, x_test, t_test):
