@@ -25,7 +25,8 @@ class GestionDonnees:
         bruit : amplitude du bruit (superieur ou egale a zero
         """
         ############    Écrire du commentaire ici!!!!! ############################
-        np.random.seed(12)  # commentez cette ligne pour tester differentes configurations
+        #np.random.seed(12)  # commentez cette ligne pour tester differentes configurations
+        np.random.seed(3)
         mu1 = np.random.randn(2)
         mu2 = mu1 + np.random.randn(2)*10
         mu3 = mu2*4

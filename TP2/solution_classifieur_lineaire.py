@@ -75,7 +75,7 @@ class ClassifieurLineaire:
             mu_1     = np.matrix(sum((x_train.transpose()*t_train).transpose()) / n_1)
             mu_2     = np.matrix(sum((x_train.transpose()*(1-t_train)).transpose()) / n_2)
             s_1      = sum((x-mu_1).transpose()*(x-mu_1) for x,t in zip(x_train, t_train) if t == 1.)/n_1
-            s_2      = sum((x-mu_2).transpose()*(x-mu_2) for x,t in zip(x_train, t_train) if t == 0.)/n_2            
+            s_2      = sum((x-mu_2).transpose()*(x-mu_2) for x,t in zip(x_train, t_train) if t == 0.)/n_2
             sigma    =  p1*s_1 + p2*s_2 + self.lamb*np.identity(x_train.shape[1])
             sigma_inv = np.linalg.inv(sigma)
             self.w   = np.array(sigma_inv*(mu_1-mu_2).transpose())
@@ -168,7 +168,6 @@ class ClassifieurLineaire:
         yy = pente * xx - self.w_0 / self.w[1]
         plt.plot(xx, yy)
         plt.title('Testing data')
-        plt.savefig('figure.png') ####################!!!!!!!!! remove before submitting !!!!!!!###########################
 
         plt.show()
 
