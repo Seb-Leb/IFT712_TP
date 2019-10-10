@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 #####
-# Vos Noms (VosMatricules) .~= À MODIFIER =~.
-####
+# Jeremie Beliveau-Lefebvre (04494470)
+# Sebastien Leblanc         (18206273)####
 
 import numpy as np
 from sklearn.linear_model import Perceptron
