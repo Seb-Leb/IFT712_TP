@@ -24,7 +24,7 @@ class GestionDonnees:
         nb_test : nb de donnees de test
         bruit : amplitude du bruit (superieur ou egale a zero
         """
-        ############    Écrire du commentaire ici!!!!! ############################
+
         #np.random.seed(12)  # commentez cette ligne pour tester differentes configurations
         mu1 = np.random.randn(2)
         mu2 = mu1 + np.random.randn(2)*10
