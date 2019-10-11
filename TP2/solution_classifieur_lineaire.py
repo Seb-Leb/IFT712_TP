@@ -65,7 +65,7 @@ class ClassifieurLineaire:
         """
         if self.methode == 1:  # Classification generative
             print('Classification generative')
-            # AJOUTER CODE ICI
+
             n   = len(t_train)
             n_1 = sum(t_train) # t=1
             n_2 = n-n_1        # t=0
@@ -83,12 +83,12 @@ class ClassifieurLineaire:
 
         elif self.methode == 2:  # Perceptron + SGD, learning rate = 0.001, nb_iterations_max = 1000
             print('Perceptron')
-            # AJOUTER CODE ICI
+
             t_train = np.array([1. if t == 1. else -1. for t in t_train])
             x_train = np.array([[1., *x] for x in x_train])
             eta     = 0.001
             iter_max = 1000
-            w = np.array([self.w_0, *self.w.transpose()]) #np.random.randn(3)
+            w = np.array([self.w_0, *self.w.transpose()])
             k = 0
             misclassified = True
             while misclassified and k <= iter_max:
@@ -106,8 +106,8 @@ class ClassifieurLineaire:
 
         else:  # Perceptron + SGD [sklearn] + learning rate = 0.001 + penalty 'l2' voir http://scikit-learn.org/
             print('Perceptron [sklearn]')
-            # AJOUTER CODE ICI
-            clf = Perceptron(eta0=0.001, penalty='l2')
+
+            clf = Perceptron(eta0=0.001, penalty='l2', alpha=self.lamb)
             clf.fit(x_train, t_train)
             self.w_0 = clf.intercept_
             self.w   = clf.coef_.transpose()
@@ -126,7 +126,7 @@ class ClassifieurLineaire:
         a préalablement été appelée. Elle doit utiliser les champs ``self.w``
         et ``self.w_0`` afin de faire cette classification.
         """
-        # AJOUTER CODE ICI
+
         y = self.w_0 + np.matmul(self.w.transpose(), x)
         if y > 0:
             return 1
@@ -139,7 +139,7 @@ class ClassifieurLineaire:
         1. si la cible ``t`` et la prédiction ``prediction``
         sont différentes, 0. sinon.
         """
-        # AJOUTER CODE ICI
+
         if t != prediction:
             return 1
         return 0

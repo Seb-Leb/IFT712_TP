@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 
+#####
+# Jeremie Beliveau-Lefebvre (04494470)
+# Sebastien Leblanc         (18206273)
+#####
+
 import numpy as np
 import sys
 import solution_classifieur_lineaire as solution
 import gestion_donnees as gd
+
 
 #################################################
 # Execution en tant que script dans un terminal
