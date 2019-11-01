@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 #####
-# Vos Noms (Vos Matricules) .~= À MODIFIER =~.
+# Jeremie Beliveau-Lefebvre (04494470)
+# Sebastien Leblanc         (18206273)
 ###
 
 import numpy as np
@@ -29,7 +30,7 @@ class MAPnoyau:
         self.noyau = noyau
         self.x_train = None
 
-        
+
 
     def entrainement(self, x_train, t_train):
         """
@@ -51,7 +52,7 @@ class MAPnoyau:
         d'apprentissage dans ``self.x_train``
         """
         #AJOUTER CODE ICI
-        
+
     def prediction(self, x):
         """
         Retourne la prédiction pour une entrée representée par un tableau
