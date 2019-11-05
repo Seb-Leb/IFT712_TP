@@ -52,6 +52,20 @@ class MAPnoyau:
         d'apprentissage dans ``self.x_train``
         """
         #AJOUTER CODE ICI
+        N = len(x_train)
+        sig = np.var(x_train)
+
+        #RBF kernel
+        sq_norm = (x_train ** 2).sum(axis=1)
+        dist    = np.dot(x_train, x_train.T)
+        dist   *= -2
+        dist   += sq_norm.reshape(-1, 1)
+        dist   += sq_norm
+        k       = dist
+        k      *= (-sig**2 / 2)
+        np.exp(k, k)
+
+        self.a = np.linalg.inv((k + self.lamb*np.identity(N)))*t_train
 
     def prediction(self, x):
         """
