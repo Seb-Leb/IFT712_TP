@@ -18,7 +18,7 @@ class MAPnoyau:
         sigma_square: paramètre du noyau rbf
         b, d: paramètres du noyau sigmoidal
         M,c: paramètres du noyau polynomial
-        noyau: rbf, lineaire, olynomial ou sigmoidal
+        noyau: rbf, lineaire, polynomial ou sigmoidal
         """
         self.lamb = lamb
         self.a = None
