@@ -81,6 +81,9 @@ class MAPnoyau:
         sinon
         """
         #AJOUTER CODE ICI
+        y = self.a.T
+        if y>0.5:
+            return 1
         return 0
 
     def erreur(self, t, prediction):
