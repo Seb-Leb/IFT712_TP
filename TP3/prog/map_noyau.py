@@ -102,6 +102,8 @@ class MAPnoyau:
         la cible ``t`` et la prédiction ``prediction``.
         """
         # AJOUTER CODE ICI
+        if t == prediction:
+            return 1.
         return 0.
 
     def validation_croisee(self, x_tab, t_tab):
@@ -117,6 +119,26 @@ class MAPnoyau:
         de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
         """
         # AJOUTER CODE ICI
+        D_train = list(zip(x_tab,t_tab))
+        random.shuffle(D_train)
+        def k_fold_cross_val(D_train, m, k=1):
+            '''
+            Implementation of k-fold cross-validation algorythm.
+            D_train : shuffled training dataset
+            m: parameter for regression
+            k: cross validation parameter (number of equaly sized bins)
+            '''
+            len_D_train = len(D_train)
+            bin_size    = int(len_D_train / k)
+            for i in range(0, len_D_train, bin_size):
+                X_val, t_val = list(zip(*D_train[i:i+bin_size]))
+                D_cv   = D_train[:i]
+                MSEs   = []
+                if i+bin_size < len_D_train:
+                    D_cv += D_train[i+bin_size:]
+                    X_cv,   t_cv   = list(zip(*D_cv))
+                    self.sigma_square, self.c, self.M
+
 
     def affichage(self, x_tab, t_tab):
 
