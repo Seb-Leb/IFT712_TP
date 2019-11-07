@@ -53,19 +53,19 @@ class MAPnoyau:
         """
         #AJOUTER CODE ICI
         N = len(x_train)
-        sig = np.var(x_train)
+        self.x_train = x_train
 
         #RBF kernel
-        sq_norm = (x_train ** 2).sum(axis=1)
-        dist    = np.dot(x_train, x_train.T)
-        dist   *= -2
-        dist   += sq_norm.reshape(-1, 1)
-        dist   += sq_norm
-        k       = dist
-        k      *= (-sig**2 / 2)
-        np.exp(k, k)
-
-        self.a = np.linalg.inv((k + self.lamb*np.identity(N)))*t_train
+        if self.noyau == 'rbf':
+            # (x-y).T*(x-y) = x.T*x + y.T*y - 2*x.T*y
+            sq_norm = (x_train ** 2).sum(axis=1)# x.T*x
+            k    = np.dot(x_train, x_train.T)# x.T*y
+            k   *= -2                        # -2*x.T*y
+            k   += sq_norm.reshape(-1, 1)    # y.T*y - 2*x.T*y
+            k   += sq_norm                   # x.T*x +y.T*y - 2*x.T*y
+            k   *= (-1/(2*self.sigma_square))# -||x_i - x_j||^2 / 2*sigma^2
+            np.exp(k, k)                        # exp(-||x_i - x_j||^2 / 2*sigma^2)
+            self.a = np.dot(np.linalg.inv((k + self.lamb*np.identity(N))), t_train)
 
     def prediction(self, x):
         """
@@ -76,15 +76,25 @@ class MAPnoyau:
         été appelée. Elle doit utiliser le champs ``self.a`` afin de calculer
         la prédiction y(x) (équation 6.9).
 
-        NOTE : Puisque nous utilisons cette classe pour faire de la
+        TE : Puisque nous utilisons cette classe pour faire de la
         classification binaire, la prediction est +1 lorsque y(x)>0.5 et 0
         sinon
         """
         #AJOUTER CODE ICI
-        y = self.a.T
-        if y>0.5:
-            return 1
-        return 0
+        # RBF kernel
+        if self.noyau == 'rbf':
+            sq_norm = (x ** 2).sum(axis=0)
+            k_x     = np.dot(self.x_train, x.T)
+            k_x    *= -2
+            k_x    += np.dot(self.x_train, x)
+            k_x    += sq_norm
+            k_x    *= (-1/(2*self.sigma_square))
+            np.exp(k_x, k_x)
+            y = np.dot(k_x.T, self.a)
+            print(k_x.shape, self.a.shape, y)
+            if y>0.5:
+                return 1
+            return 0
 
     def erreur(self, t, prediction):
         """
