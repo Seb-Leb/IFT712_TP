@@ -91,7 +91,6 @@ class MAPnoyau:
             k_x    *= (-1/(2*self.sigma_square))
             np.exp(k_x, k_x)
             y = np.dot(k_x.T, self.a)
-            print(k_x.shape, self.a.shape, y)
             if y>0.5:
                 return 1
             return 0
@@ -102,9 +101,7 @@ class MAPnoyau:
         la cible ``t`` et la prédiction ``prediction``.
         """
         # AJOUTER CODE ICI
-        if t == prediction:
-            return 1.
-        return 0.
+        return (prediction - t)**2
 
     def validation_croisee(self, x_tab, t_tab):
         """
@@ -119,25 +116,33 @@ class MAPnoyau:
         de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
         """
         # AJOUTER CODE ICI
-        D_train = list(zip(x_tab,t_tab))
-        random.shuffle(D_train)
-        def k_fold_cross_val(D_train, m, k=1):
+        kernel_parameters = {
+                'rbf'       : {'sigma_sq' : self.sigma_square},
+                'polynomial': {'c' : self.c, 'M' : self.M},
+                'sigmoidal' : {'b' : self.b, 'd' : self.d}
+                }
+        def k_fold_cross_val(self, x_tab, t_tab, lamb, **kwargs):
             '''
-            Implementation of k-fold cross-validation algorythm.
+            Implementation of k-fold cross-validation algorithm.
             D_train : shuffled training dataset
-            m: parameter for regression
+            par_values: parameter dictionary
             k: cross validation parameter (number of equaly sized bins)
             '''
-            len_D_train = len(D_train)
-            bin_size    = int(len_D_train / k)
-            for i in range(0, len_D_train, bin_size):
-                X_val, t_val = list(zip(*D_train[i:i+bin_size]))
-                D_cv   = D_train[:i]
+            D_train = list(zip(x_tab, t_tab))
+            errs = []
+            for i in range(0, len(D_train)):
+                x_val, t_val = D_train[i]
+                D_cv   = D_train[:i] + D_train[i+1:]
                 MSEs   = []
-                if i+bin_size < len_D_train:
-                    D_cv += D_train[i+bin_size:]
-                    X_cv,   t_cv   = list(zip(*D_cv))
-                    self.sigma_square, self.c, self.M
+                x_cv,   t_cv   = list(zip(*D_cv))
+                self.lamb = lamb
+                for p in kernel_parameters[self.noyau].keys():
+                    kernel_parameters[self.noyau][p] = kwargs[p]
+                self.entrainement(x_cv, t_cv)
+                t_pred = self.prediction(x_val)
+                errs.append(self.erreur(t_val, t_pred))
+            return np.mean(errs)
+
 
 
     def affichage(self, x_tab, t_tab):
@@ -152,4 +157,5 @@ class MAPnoyau:
 
         plt.contourf(iX, iY, contour_out > 0.5)
         plt.scatter(x_tab[:, 0], x_tab[:, 1], s=(t_tab + 0.5) * 100, c=t_tab, edgecolors='y')
+        plt.savefig('/mnt/c/Users/Seb/Documents/TP3/figure.png') # REMOVE BEFORE SUBMITTING !!!
         plt.show()
