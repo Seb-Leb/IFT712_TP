@@ -52,7 +52,6 @@ class MAPnoyau:
         l'equation 6.8 du livre de Bishop et garder en mémoire les données
         d'apprentissage dans ``self.x_train``
         """
-        #AJOUTER CODE ICI
         N = len(x_train)
         self.x_train = x_train
 
@@ -65,8 +64,25 @@ class MAPnoyau:
             k   += sq_norm.reshape(-1, 1)    # y.T*y - 2*x.T*y
             k   += sq_norm                   # x.T*x +y.T*y - 2*x.T*y
             k   *= (-1/(2*self.sigma_square))# -||x_i - x_j||^2 / 2*sigma^2
-            np.exp(k, k)                        # exp(-||x_i - x_j||^2 / 2*sigma^2)
-            self.a = np.dot(np.linalg.inv((k + self.lamb*np.identity(N))), t_train)
+            np.exp(k, k)                     # exp(-||x_i - x_j||^2 / 2*sigma^2)
+
+        #Linear kernel
+        if self.noyau == 'lineaire':
+            k = np.dot(x_train, x_train.T)
+
+        #Polynomial kernel
+        if self.noyau == 'Polynomial':
+            k  = np.dot(x_train, x_train.T)
+            k += self.c
+
+        #Sigmoidal kernel
+        if self.noyau == 'Sigmoidal':
+            k  = np.dot(x_train, x_train.T)
+            k *= self.b
+            k += self.d
+            np.tanh(k, k)
+
+        self.a = np.dot(np.linalg.inv((k + self.lamb*np.identity(N))), t_train)
 
     def prediction(self, x):
         """
