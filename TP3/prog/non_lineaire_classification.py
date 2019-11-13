@@ -38,7 +38,7 @@ def main():
         \n\t validation: 0: pas de validation croisee,  1: validation croisee\n"
         print(usage)
         return
-
+    
     type_noyau = sys.argv[1]
     nb_train = int(sys.argv[2])
     nb_test = int(sys.argv[3])
