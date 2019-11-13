@@ -74,6 +74,7 @@ class MAPnoyau:
         if self.noyau == 'Polynomial':
             k  = np.dot(x_train, x_train.T)
             k += self.c
+            k  = np.power(k, self.M)
 
         #Sigmoidal kernel
         if self.noyau == 'Sigmoidal':
@@ -192,5 +193,5 @@ class MAPnoyau:
 
         plt.contourf(iX, iY, contour_out > 0.5)
         plt.scatter(x_tab[:, 0], x_tab[:, 1], s=(t_tab + 0.5) * 100, c=t_tab, edgecolors='y')
-        plt.savefig('/mnt/c/Users/Seb/Documents/TP3/figure.png') # REMOVE BEFORE SUBMITTING !!!
+        plt.savefig('/mnt/c/Users/PC/Documents/TP3/figure.png') # REMOVE BEFORE SUBMITTING !!!
         plt.show()
