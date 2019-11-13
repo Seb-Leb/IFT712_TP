@@ -9,7 +9,6 @@ import itertools as itt
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 class MAPnoyau:
     def __init__(self, lamb=0.2, sigma_square=1.06, b=1.0, c=0.1, d=1.0, M=2, noyau='rbf'):
         """
@@ -214,7 +213,6 @@ class MAPnoyau:
         plt.contourf(iX, iY, contour_out > 0.5)
         plt.scatter(x_tab[:, 0], x_tab[:, 1], s=(t_tab + 0.5) * 100, c=t_tab, edgecolors='y')
 
-    #   plt.savefig('C:/Users/jerem/Desktop/IFT712/TPs/Repo/TP3/prog/figure.png') # REMOVE BEFORE SUBMITTING !!!
-        plt.title('Testing data')
+        plt.title(self.noyau)
 
         plt.show()
