@@ -52,7 +52,6 @@ class MAPnoyau:
         l'equation 6.8 du livre de Bishop et garder en mémoire les données
         d'apprentissage dans ``self.x_train``
         """
-        #AJOUTER CODE ICI
         N = len(x_train)
         self.x_train = x_train
 
@@ -65,8 +64,26 @@ class MAPnoyau:
             k   += sq_norm.reshape(-1, 1)    # y.T*y - 2*x.T*y
             k   += sq_norm                   # x.T*x +y.T*y - 2*x.T*y
             k   *= (-1/(2*self.sigma_square))# -||x_i - x_j||^2 / 2*sigma^2
-            np.exp(k, k)                        # exp(-||x_i - x_j||^2 / 2*sigma^2)
-            self.a = np.dot(np.linalg.inv((k + self.lamb*np.identity(N))), t_train)
+            np.exp(k, k)                     # exp(-||x_i - x_j||^2 / 2*sigma^2)
+
+        #Linear kernel
+        if self.noyau == 'lineaire':
+            k = np.dot(x_train, x_train.T)
+
+        #Polynomial kernel
+        if self.noyau == 'polynomial':
+            k  = np.dot(x_train, x_train.T)
+            k += self.c
+            k  = np.power(k, self.M)
+
+        #Sigmoidal kernel
+        if self.noyau == 'sigmoidal':
+            k  = np.dot(x_train, x_train.T)
+            k *= self.b
+            k += self.d
+            np.tanh(k, k)
+
+        self.a = np.dot(np.linalg.inv((k + self.lamb*np.identity(N))), t_train)
 
     def prediction(self, x):
         """
@@ -90,10 +107,29 @@ class MAPnoyau:
             k_x    += sq_norm
             k_x    *= (-1/(2*self.sigma_square))
             np.exp(k_x, k_x)
-            y = np.dot(k_x.T, self.a)
-            if y>0.5:
-                return 1
-            return 0
+
+        #Linear kernel
+        if self.noyau == 'lineaire':
+            k_x  = np.dot(self.x_train, x.T)
+
+        #Polynomial kernel
+        if self.noyau == 'polynomial':
+            k_x  = np.dot(self.x_train, x.T)
+            k_x += self.c
+            k_x  = np.power(k_x, self.M)
+
+        #Sigmoidal kernel
+        if self.noyau == 'sigmoidal':
+            k_x  = np.dot(self.x_train, x.T)
+            k_x *= self.b
+            k_x += self.d
+            np.tanh(k_x, k_x)
+
+        y = np.dot(k_x.T, self.a)
+        if y>0.5:
+            return 1
+        return 0
+
 
     def erreur(self, t, prediction):
         """
@@ -102,7 +138,7 @@ class MAPnoyau:
         """
         return (prediction - t)**2
 
-    def validation_croisee(self, x_tab, t_tab):
+    def validation_croisee(self, x_tab, t_tab, debug=False):
         """
         Cette fonction trouve les meilleurs hyperparametres ``self.sigma_square``,
         ``self.c`` et ``self.M`` (tout dépendant du noyau selectionné) et
@@ -115,7 +151,7 @@ class MAPnoyau:
         de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
         """
         model_parameters = {
-                'linear'    : ['lamb', ],
+                'lineaire'    : ['lamb', ],
                 'rbf'       : ['lamb', 'sigma_sq'],
                 'polynomial': ['lamb', 'c', 'M'],
                 'sigmoidal' : ['lamb', 'b', 'd']
@@ -157,7 +193,8 @@ class MAPnoyau:
         for args in args_ls:
             meanerr_hyperpars[cross_val(args)] = args
         best_hyperpars = meanerr_hyperpars[min(meanerr_hyperpars.keys())]
-        print(len(args_ls), best_hyperpars)
+        if debug:
+            print(len(args_ls), best_hyperpars)
         for hyperpar, hyperpar_value in best_hyperpars.items():
             setattr(self, hyperpar, hyperpar_value)
         self.entrainement(x_tab, t_tab)
@@ -176,5 +213,9 @@ class MAPnoyau:
 
         plt.contourf(iX, iY, contour_out > 0.5)
         plt.scatter(x_tab[:, 0], x_tab[:, 1], s=(t_tab + 0.5) * 100, c=t_tab, edgecolors='y')
+<<<<<<< HEAD
         plt.savefig('C:/Users/jerem/Desktop/IFT712/TPs/Repo/TP3/prog/figure.png') # REMOVE BEFORE SUBMITTING !!!
+=======
+        plt.savefig('/mnt/c/Users/PC/Documents/TP3/figure.png') # REMOVE BEFORE SUBMITTING !!!
+>>>>>>> e1a81ff20e1f7b1113c1b5436ca959c6fc35be88
         plt.show()
