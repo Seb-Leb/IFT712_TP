@@ -138,7 +138,7 @@ class MAPnoyau:
         """
         return (prediction - t)**2
 
-    def validation_croisee(self, x_tab, t_tab):
+    def validation_croisee(self, x_tab, t_tab, debug=False):
         """
         Cette fonction trouve les meilleurs hyperparametres ``self.sigma_square``,
         ``self.c`` et ``self.M`` (tout dépendant du noyau selectionné) et
@@ -193,7 +193,8 @@ class MAPnoyau:
         for args in args_ls:
             meanerr_hyperpars[cross_val(args)] = args
         best_hyperpars = meanerr_hyperpars[min(meanerr_hyperpars.keys())]
-        print(len(args_ls), best_hyperpars)
+        if debug:
+            print(len(args_ls), best_hyperpars)
         for hyperpar, hyperpar_value in best_hyperpars.items():
             setattr(self, hyperpar, hyperpar_value)
         self.entrainement(x_tab, t_tab)

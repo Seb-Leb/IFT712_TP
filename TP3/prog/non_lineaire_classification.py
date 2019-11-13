@@ -60,8 +60,9 @@ def main():
     # ~= À MODIFIER =~.
     # AJOUTER CODE AFIN DE CALCULER L'ERREUR D'APPRENTISSAGE
     # ET DE VALIDATION EN % DU NOMBRE DE POINTS MAL CLASSES
-    err_train = 50
-    err_test = 50
+
+    err_train  = (sum(t_train[n] != mp.prediction(x_train[n]) for n in range(nb_train))/nb_train)*100
+    err_test   = (sum(t_test[n]  != mp.prediction(x_test[n])  for n in range(nb_test-1))/nb_test)*100
 
     print('Erreur train = ', err_train, '%')
     print('Erreur test = ', err_test, '%')
