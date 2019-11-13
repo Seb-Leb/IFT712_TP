@@ -71,13 +71,13 @@ class MAPnoyau:
             k = np.dot(x_train, x_train.T)
 
         #Polynomial kernel
-        if self.noyau == 'Polynomial':
+        if self.noyau == 'polynomial':
             k  = np.dot(x_train, x_train.T)
             k += self.c
             k  = np.power(k, self.M)
 
         #Sigmoidal kernel
-        if self.noyau == 'Sigmoidal':
+        if self.noyau == 'sigmoidal':
             k  = np.dot(x_train, x_train.T)
             k *= self.b
             k += self.d
@@ -107,10 +107,29 @@ class MAPnoyau:
             k_x    += sq_norm
             k_x    *= (-1/(2*self.sigma_square))
             np.exp(k_x, k_x)
-            y = np.dot(k_x.T, self.a)
-            if y>0.5:
-                return 1
-            return 0
+
+        #Linear kernel
+        if self.noyau == 'lineaire':
+            k_x  = np.dot(self.x_train, x.T)
+
+        #Polynomial kernel
+        if self.noyau == 'polynomial':
+            k_x  = np.dot(self.x_train, x.T)
+            k_x += self.c
+            k_x  = np.power(k_x, self.M)
+
+        #Sigmoidal kernel
+        if self.noyau == 'sigmoidal':
+            k_x  = np.dot(x_train, x_train.T)
+            k_x *= self.b
+            k_x += self.d
+            np.tanh(k_x, k_x)
+
+        y = np.dot(k_x.T, self.a)
+        if y>0.5:
+            return 1
+        return 0
+
 
     def erreur(self, t, prediction):
         """
