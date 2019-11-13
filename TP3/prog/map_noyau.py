@@ -120,7 +120,7 @@ class MAPnoyau:
 
         #Sigmoidal kernel
         if self.noyau == 'sigmoidal':
-            k_x  = np.dot(x_train, x_train.T)
+            k_x  = np.dot(self.x_train, x.T)
             k_x *= self.b
             k_x += self.d
             np.tanh(k_x, k_x)
@@ -151,7 +151,7 @@ class MAPnoyau:
         de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
         """
         model_parameters = {
-                'linear'    : ['lamb', ],
+                'lineaire'    : ['lamb', ],
                 'rbf'       : ['lamb', 'sigma_sq'],
                 'polynomial': ['lamb', 'c', 'M'],
                 'sigmoidal' : ['lamb', 'b', 'd']
