@@ -213,9 +213,8 @@ class MAPnoyau:
 
         plt.contourf(iX, iY, contour_out > 0.5)
         plt.scatter(x_tab[:, 0], x_tab[:, 1], s=(t_tab + 0.5) * 100, c=t_tab, edgecolors='y')
-<<<<<<< HEAD
-        plt.savefig('C:/Users/jerem/Desktop/IFT712/TPs/Repo/TP3/prog/figure.png') # REMOVE BEFORE SUBMITTING !!!
-=======
-        plt.savefig('/mnt/c/Users/PC/Documents/TP3/figure.png') # REMOVE BEFORE SUBMITTING !!!
->>>>>>> e1a81ff20e1f7b1113c1b5436ca959c6fc35be88
+
+    #   plt.savefig('C:/Users/jerem/Desktop/IFT712/TPs/Repo/TP3/prog/figure.png') # REMOVE BEFORE SUBMITTING !!!
+        plt.title('Testing data')
+
         plt.show()
