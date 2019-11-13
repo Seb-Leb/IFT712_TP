@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
+
+#####
+# Jeremie Beliveau-Lefebvre (04494470)
+# Sebastien Leblanc         (18206273)
+###
+
 """
 Execution dans un terminal
 
 Exemple:
    python non_lineaire_classification.py rbf 100 200 0 0
 
-Vos Noms (Vos Matricules) .~= À MODIFIER =~.
 """
 
 import numpy as np
@@ -20,6 +25,8 @@ def analyse_erreur(err_train, err_test):
     apprentissage
     """
     #AJOUTER CODE ICI
+    print('WARNING: overfitting')
+    print('WARNING: underfitting')
 
 def main():
 
@@ -31,7 +38,7 @@ def main():
         \n\t validation: 0: pas de validation croisee,  1: validation croisee\n"
         print(usage)
         return
-
+    
     type_noyau = sys.argv[1]
     nb_train = int(sys.argv[2])
     nb_test = int(sys.argv[3])
@@ -50,7 +57,7 @@ def main():
     else:
         mp.validation_croisee(x_train, t_train)
 
-    # ~= À MODIFIER =~. 
+    # ~= À MODIFIER =~.
     # AJOUTER CODE AFIN DE CALCULER L'ERREUR D'APPRENTISSAGE
     # ET DE VALIDATION EN % DU NOMBRE DE POINTS MAL CLASSES
     err_train = 50

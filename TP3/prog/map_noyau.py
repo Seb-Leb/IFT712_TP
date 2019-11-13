@@ -5,6 +5,7 @@
 # Sebastien Leblanc         (18206273)
 ###
 
+import itertools as itt
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -53,19 +54,19 @@ class MAPnoyau:
         """
         #AJOUTER CODE ICI
         N = len(x_train)
-        sig = np.var(x_train)
+        self.x_train = x_train
 
         #RBF kernel
-        sq_norm = (x_train ** 2).sum(axis=1)
-        dist    = np.dot(x_train, x_train.T)
-        dist   *= -2
-        dist   += sq_norm.reshape(-1, 1)
-        dist   += sq_norm
-        k       = dist
-        k      *= (-sig**2 / 2)
-        np.exp(k, k)
-
-        self.a = np.linalg.inv((k + self.lamb*np.identity(N)))*t_train
+        if self.noyau == 'rbf':
+            # (x-y).T*(x-y) = x.T*x + y.T*y - 2*x.T*y
+            sq_norm = (x_train ** 2).sum(axis=1)# x.T*x
+            k    = np.dot(x_train, x_train.T)# x.T*y
+            k   *= -2                        # -2*x.T*y
+            k   += sq_norm.reshape(-1, 1)    # y.T*y - 2*x.T*y
+            k   += sq_norm                   # x.T*x +y.T*y - 2*x.T*y
+            k   *= (-1/(2*self.sigma_square))# -||x_i - x_j||^2 / 2*sigma^2
+            np.exp(k, k)                        # exp(-||x_i - x_j||^2 / 2*sigma^2)
+            self.a = np.dot(np.linalg.inv((k + self.lamb*np.identity(N))), t_train)
 
     def prediction(self, x):
         """
@@ -76,23 +77,30 @@ class MAPnoyau:
         été appelée. Elle doit utiliser le champs ``self.a`` afin de calculer
         la prédiction y(x) (équation 6.9).
 
-        NOTE : Puisque nous utilisons cette classe pour faire de la
+        TE : Puisque nous utilisons cette classe pour faire de la
         classification binaire, la prediction est +1 lorsque y(x)>0.5 et 0
         sinon
         """
-        #AJOUTER CODE ICI
-        y = self.a.T
-        if y>0.5:
-            return 1
-        return 0
+        # RBF kernel
+        if self.noyau == 'rbf':
+            sq_norm = (x ** 2).sum(axis=0)
+            k_x     = np.dot(self.x_train, x.T)
+            k_x    *= -2
+            k_x    += np.dot(self.x_train, x)
+            k_x    += sq_norm
+            k_x    *= (-1/(2*self.sigma_square))
+            np.exp(k_x, k_x)
+            y = np.dot(k_x.T, self.a)
+            if y>0.5:
+                return 1
+            return 0
 
     def erreur(self, t, prediction):
         """
         Retourne la différence au carré entre
         la cible ``t`` et la prédiction ``prediction``.
         """
-        # AJOUTER CODE ICI
-        return 0.
+        return (prediction - t)**2
 
     def validation_croisee(self, x_tab, t_tab):
         """
@@ -106,7 +114,55 @@ class MAPnoyau:
         de 0.000000001 à 2, les valeurs de ``self.c`` de 0 à 5, les valeurs
         de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
         """
-        # AJOUTER CODE ICI
+        model_parameters = {
+                'linear'    : ['lamb', ],
+                'rbf'       : ['lamb', 'sigma_sq'],
+                'polynomial': ['lamb', 'c', 'M'],
+                'sigmoidal' : ['lamb', 'b', 'd']
+                }
+        def cross_val(kwargs):
+            '''
+            Implementation of k-fold cross-validation algorithm.
+            D_train : shuffled training dataset
+            par_values: parameter dictionary
+            k: cross validation parameter (number of equaly sized bins)
+            '''
+            D_train = list(zip(x_tab, t_tab))
+            errs = []
+            for i in range(0, len(D_train)):
+                x_val, t_val = D_train[i]
+                D_cv   = D_train[:i] + D_train[i+1:]
+                x_cv,   t_cv   = [np.array(x) for x in zip(*D_cv)]
+                for p in model_parameters[self.noyau]:
+                    setattr(self, p, kwargs[p])
+                self.entrainement(x_cv, t_cv)
+                t_pred = self.prediction(x_val)
+                errs.append(self.erreur(t_val, t_pred))
+            return np.mean(errs)
+
+        # grid-search hyperparameters
+        grid_size = 20
+        par_search_space = {
+                'lamb'     : np.logspace(np.log10(1e-9), np.log10(2), grid_size),
+                'sigma_sq' : np.logspace(np.log10(1e-9), np.log10(2), grid_size),
+                'c'        : np.arange(0, 6),
+                'b'        : np.logspace(np.log10(1e-5), np.log10(0.01), grid_size),
+                'd'        : np.logspace(np.log10(1e-5), np.log10(0.01), grid_size),
+                'M'        : np.arange(2, 7)
+                }
+
+        pars = model_parameters[self.noyau]
+        args_ls = [dict(zip(pars, x)) for x in itt.product(*[par_search_space[p] for p in pars])]
+        meanerr_hyperpars = dict() # mean error as keys and hyperpars as values
+        for args in args_ls:
+            meanerr_hyperpars[cross_val(args)] = args
+        best_hyperpars = meanerr_hyperpars[min(meanerr_hyperpars.keys())]
+        print(len(args_ls), best_hyperpars)
+        for hyperpar, hyperpar_value in best_hyperpars.items():
+            setattr(self, hyperpar, hyperpar_value)
+        self.entrainement(x_tab, t_tab)
+
+
 
     def affichage(self, x_tab, t_tab):
 
@@ -120,4 +176,5 @@ class MAPnoyau:
 
         plt.contourf(iX, iY, contour_out > 0.5)
         plt.scatter(x_tab[:, 0], x_tab[:, 1], s=(t_tab + 0.5) * 100, c=t_tab, edgecolors='y')
+        plt.savefig('C:/Users/jerem/Desktop/IFT712/TPs/Repo/TP3/prog/figure.png') # REMOVE BEFORE SUBMITTING !!!
         plt.show()
