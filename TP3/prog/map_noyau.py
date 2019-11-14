@@ -177,7 +177,7 @@ class MAPnoyau:
             return np.mean(errs)
 
         # grid-search hyperparameters
-        grid_size = 20
+        grid_size = 10
         par_search_space = {
                 'lamb'     : np.logspace(np.log10(1e-9), np.log10(2), grid_size),
                 'sigma_sq' : np.logspace(np.log10(1e-9), np.log10(2), grid_size),
@@ -214,7 +214,7 @@ class MAPnoyau:
         plt.contourf(iX, iY, contour_out > 0.5)
         plt.scatter(x_tab[:, 0], x_tab[:, 1], s=(t_tab + 0.5) * 100, c=t_tab, edgecolors='y')
 
-    #   plt.savefig('C:/Users/jerem/Desktop/IFT712/TPs/Repo/TP3/prog/figure.png') # REMOVE BEFORE SUBMITTING !!!
+        plt.savefig('/mnt/c/Users/PC/Documents/TP3/figure.png') # REMOVE BEFORE SUBMITTING !!!
         plt.title('Testing data')
 
         plt.show()
