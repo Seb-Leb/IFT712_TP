@@ -8,6 +8,7 @@
 import itertools as itt
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 class MAPnoyau:
     def __init__(self, lamb=0.2, sigma_square=1.06, b=1.0, c=0.1, d=1.0, M=2, noyau='rbf'):
@@ -57,13 +58,13 @@ class MAPnoyau:
         #RBF kernel
         if self.noyau == 'rbf':
             # (x-y).T*(x-y) = x.T*x + y.T*y - 2*x.T*y
-            sq_norm = (x_train ** 2).sum(axis=1)# x.T*x
-            k    = np.dot(x_train, x_train.T)# x.T*y
-            k   *= -2                        # -2*x.T*y
-            k   += sq_norm.reshape(-1, 1)    # y.T*y - 2*x.T*y
-            k   += sq_norm                   # x.T*x +y.T*y - 2*x.T*y
-            k   *= (-1/(2*self.sigma_square))# -||x_i - x_j||^2 / 2*sigma^2
-            np.exp(k, k)                     # exp(-||x_i - x_j||^2 / 2*sigma^2)
+            sq_norm = (x_train ** 2).sum(axis=1)    # x.T*x
+            k    = np.dot(x_train, x_train.T)       # x.T*y
+            k   *= -2                               # -2*x.T*y
+            k   += sq_norm.reshape(-1, 1)           # y.T*y - 2*x.T*y
+            k   += sq_norm                          # x.T*x +y.T*y - 2*x.T*y
+            k   *= (-1/(2*self.sigma_square))       # -||x_i - x_j||^2 / 2*sigma^2
+            np.exp(k, k)                            # exp(-||x_i - x_j||^2 / 2*sigma^2)
 
         #Linear kernel
         if self.noyau == 'lineaire':
@@ -150,7 +151,7 @@ class MAPnoyau:
         de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
         """
         model_parameters = {
-                'lineaire'    : ['lamb', ],
+                'lineaire'    : ['lamb'],
                 'rbf'       : ['lamb', 'sigma_sq'],
                 'polynomial': ['lamb', 'c', 'M'],
                 'sigmoidal' : ['lamb', 'b', 'd']
@@ -164,16 +165,40 @@ class MAPnoyau:
             '''
             D_train = list(zip(x_tab, t_tab))
             errs = []
+            starttime = time.time()
             for i in range(0, len(D_train)):
+                t1 = time.time()
                 x_val, t_val = D_train[i]
+                t2 = time.time()
                 D_cv   = D_train[:i] + D_train[i+1:]
+                t3 = time.time()
                 x_cv,   t_cv   = [np.array(x) for x in zip(*D_cv)]
+                t4 = time.time()
                 for p in model_parameters[self.noyau]:
                     setattr(self, p, kwargs[p])
+                t5 = time.time()
                 self.entrainement(x_cv, t_cv)
+                t6 = time.time()
                 t_pred = self.prediction(x_val)
+                t7 = time.time()
                 errs.append(self.erreur(t_val, t_pred))
-            return np.mean(errs)
+                t8 = time.time()
+                toreturn = np.mean(errs)
+                t9 = time.time()
+
+                tottime = t8-t1
+                #print((t2-t1)/tottime)
+                #print((t3-t2)/tottime)
+                #print((t4-t3)/tottime)
+                #print((t5-t4)/tottime)
+                #print((t6-t5)/tottime)
+                #print((t7-t6)/tottime)
+                #print((t8-t7)/tottime)
+                #print((t9-t8)/tottime)
+                #print('Ratios')
+                #print(len(errs))
+
+            return toreturn
 
         # grid-search hyperparameters
         grid_size = 10
@@ -185,12 +210,14 @@ class MAPnoyau:
                 'd'        : np.logspace(np.log10(1e-5), np.log10(0.01), grid_size),
                 'M'        : np.arange(2, 7)
                 }
-
+        beginingtime = time.time()                  #####################/////////////// à effacer avant la remise
         pars = model_parameters[self.noyau]
         args_ls = [dict(zip(pars, x)) for x in itt.product(*[par_search_space[p] for p in pars])]
+        print(len(args_ls))
         meanerr_hyperpars = dict() # mean error as keys and hyperpars as values
         for args in args_ls:
             meanerr_hyperpars[cross_val(args)] = args
+            print(time.time()-beginingtime)         #####################/////////////// à effacer avant la remise
         best_hyperpars = meanerr_hyperpars[min(meanerr_hyperpars.keys())]
         if debug:
             print(len(args_ls), best_hyperpars)
