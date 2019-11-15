@@ -25,8 +25,10 @@ def analyse_erreur(err_train, err_test):
     apprentissage
     """
     #AJOUTER CODE ICI
-    print('WARNING: overfitting')
-    print('WARNING: underfitting')
+    if err_train < 5. and err_test > 30.:
+        print('WARNING: overfitting')
+    if err_test >= 30. and err_train >= 30.:
+        print('WARNING: underfitting')
 
 def main():
 
@@ -38,7 +40,7 @@ def main():
         \n\t validation: 0: pas de validation croisee,  1: validation croisee\n"
         print(usage)
         return
-    
+
     type_noyau = sys.argv[1]
     nb_train = int(sys.argv[2])
     nb_test = int(sys.argv[3])
@@ -61,7 +63,7 @@ def main():
     # AJOUTER CODE AFIN DE CALCULER L'ERREUR D'APPRENTISSAGE
     # ET DE VALIDATION EN % DU NOMBRE DE POINTS MAL CLASSES
 
-    err_train  = (sum(t_train[n] != mp.prediction(x_train[n]) for n in range(nb_train))/nb_train)*100
+    err_train  = (sum(t_train[n] != mp.prediction(x_train[n]) for n in range(nb_train-1))/nb_train)*100
     err_test   = (sum(t_test[n]  != mp.prediction(x_test[n])  for n in range(nb_test-1))/nb_test)*100
 
     print('Erreur train = ', err_train, '%')
