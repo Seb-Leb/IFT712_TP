@@ -8,12 +8,7 @@
 import itertools as itt
 import numpy as np
 import matplotlib.pyplot as plt
-<<<<<<< HEAD
-import time
-from tqdm import tqdm_notebook as tqdm
-=======
 from tqdm import tqdm
->>>>>>> f4434319101025222ce7b68ee72668ab476a38b1
 
 
 class MAPnoyau:
@@ -183,12 +178,8 @@ class MAPnoyau:
             return np.mean(errs)
 
         # grid-search hyperparameters
-<<<<<<< HEAD
-        grid_size = 10
-=======
         bd_grid_size = 10
         lamb_sig_grid_size = 20
->>>>>>> f4434319101025222ce7b68ee72668ab476a38b1
         par_search_space = {
                 'lamb'     : np.logspace(np.log10(1e-9), np.log10(2), lamb_sig_grid_size),
                 'sigma_sq' : np.logspace(np.log10(1e-9), np.log10(2), lamb_sig_grid_size),
@@ -200,10 +191,7 @@ class MAPnoyau:
         pars = model_parameters[self.noyau]
         args_ls = [dict(zip(pars, x)) for x in itt.product(*[par_search_space[p] for p in pars])]
         meanerr_hyperpars = dict() # mean error as keys and hyperpars as values
-<<<<<<< HEAD
-=======
         print('Hyperparameter grid search.')
->>>>>>> f4434319101025222ce7b68ee72668ab476a38b1
         for args in tqdm(args_ls):
             meanerr_hyperpars[cross_val(args)] = args
         best_hyperpars = meanerr_hyperpars[min(meanerr_hyperpars.keys())]
@@ -227,12 +215,7 @@ class MAPnoyau:
 
         plt.contourf(iX, iY, contour_out > 0.5)
         plt.scatter(x_tab[:, 0], x_tab[:, 1], s=(t_tab + 0.5) * 100, c=t_tab, edgecolors='y')
-<<<<<<< HEAD
 
-        plt.title('Testing data')
-
+        plt.title('Testing data')     
         plt.title(self.noyau)
-
-=======
->>>>>>> f4434319101025222ce7b68ee72668ab476a38b1
         plt.show()
