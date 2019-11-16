@@ -24,7 +24,6 @@ def analyse_erreur(err_train, err_test):
     Fonction qui affiche un WARNING lorsqu'il y a apparence de sur ou de sous
     apprentissage
     """
-    #AJOUTER CODE ICI
     if err_train < 5. and err_test > 30.:
         print('WARNING: overfitting')
     if err_test >= 30. and err_train >= 30.:
