@@ -59,10 +59,6 @@ def main():
     else:
         mp.validation_croisee(x_train, t_train)
 
-    # ~= À MODIFIER =~.
-    # AJOUTER CODE AFIN DE CALCULER L'ERREUR D'APPRENTISSAGE
-    # ET DE VALIDATION EN % DU NOMBRE DE POINTS MAL CLASSES
-
     err_train  = (sum(t_train[n] != mp.prediction(x_train[n]) for n in range(nb_train-1))/nb_train)*100
     err_test   = (sum(t_test[n]  != mp.prediction(x_test[n])  for n in range(nb_test-1))/nb_test)*100
 
@@ -71,7 +67,7 @@ def main():
     analyse_erreur(err_train, err_test)
 
     # Affichage
-    #mp.affichage(x_test, t_test)
+    mp.affichage(x_test, t_test)
 
 if __name__ == "__main__":
     main()
