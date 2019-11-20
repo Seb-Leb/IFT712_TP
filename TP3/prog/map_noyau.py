@@ -203,6 +203,7 @@ class MAPnoyau:
 
 
 
+
     def affichage(self, x_tab, t_tab):
 
         # Affichage

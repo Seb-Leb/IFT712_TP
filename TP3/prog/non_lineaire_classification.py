@@ -3,7 +3,7 @@
 #####
 # Jeremie Beliveau-Lefebvre (04494470)
 # Sebastien Leblanc         (18206273)
-###
+###    /*
 
 """
 Execution dans un terminal
@@ -11,7 +11,7 @@ Execution dans un terminal
 Exemple:
    python non_lineaire_classification.py rbf 100 200 0 0
 
-"""
+"""               
 
 import numpy as np
 import sys
