@@ -1,10 +1,7 @@
-
-
 #####
 # Jeremie Beliveau-Lefebvre (04494470)
 # Sebastien Leblanc         (18206273)
 ###
-
 
 
 import numpy as np
@@ -64,6 +61,7 @@ class LinearClassifier(object):
                 x_sample = augment(x_sample)
 
             # Compute loss and gradient of loss
+            print(x_sample)
             loss_train, dW = self.cross_entropy_loss(x_sample, y_sample, l2_reg)
 
             # Take gradient step
@@ -100,7 +98,7 @@ class LinearClassifier(object):
         #############################################################################
         # TODO: Return the best class label.                                        #
         #############################################################################
-        np.dot(self.W, X)
+        #np.dot(self.W, X)
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -123,8 +121,9 @@ class LinearClassifier(object):
         #############################################################################
         # TODO: Compute the softmax loss & accuracy for a series of samples X,y .   #
         #############################################################################
-        accu = np.mean()
-        loss = np.mean([self.cross_entropy_loss(x,y[n]) for n,x in enumerate(X)])
+        #accu = np.mean(accu)
+        loss = np.mean(list(self.cross_entropy_loss(x,i)[0] for x,i in zip(X,y)))
+        #loss = self.cross_entropy_loss()
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -148,16 +147,18 @@ class LinearClassifier(object):
         # Initialize the loss and gradient to zero.
         loss = 0.0
         dW = np.zeros_like(self.W)
-
         #############################################################################
         # TODO: Compute the softmax loss and its gradient.                          #
         # Store the loss in loss and the gradient in dW.                            #
         # 1- Compute softmax => eq.(4.104) or eq.(5.25) Bishop                      #
         # 2- Compute cross-entropy loss => eq.(4.108)                               #
         # 3- Dont forget the regularization!                                        #
-        # 4- Compute gradient => eq.(4.104)                                         #
+        # 4- Compute gradient => eq.(4.109)                                         #
         #############################################################################
-
+        x = augment(x)
+        a_k = np.dot(self.W.T, x)
+        loss = -1*np.log(np.exp(a_k)/sum(np.exp(a_k)))[y] + reg*np.linalg.norm(self.W)
+        #dW =
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
