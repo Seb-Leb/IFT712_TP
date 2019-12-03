@@ -61,7 +61,6 @@ class LinearClassifier(object):
                 x_sample = augment(x_sample)
 
             # Compute loss and gradient of loss
-            print(x_sample)
             loss_train, dW = self.cross_entropy_loss(x_sample, y_sample, l2_reg)
 
             # Take gradient step
@@ -98,7 +97,12 @@ class LinearClassifier(object):
         #############################################################################
         # TODO: Return the best class label.                                        #
         #############################################################################
-        #np.dot(self.W, X)
+        if len(X.shape) > 1:
+            Y_w = np.array([np.dot(self.W.T, augment(x)) for x in X])
+            class_label = np.array([np.argmax(y_w) for y_w in Y_w])
+        else:
+            y_w = np.dot(self.W.T, np.concatenate([X, [1.]], axis=0))
+            class_label = np.argmax(y_w)
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -121,9 +125,8 @@ class LinearClassifier(object):
         #############################################################################
         # TODO: Compute the softmax loss & accuracy for a series of samples X,y .   #
         #############################################################################
-        #accu = np.mean(accu)
-        loss = np.mean(list(self.cross_entropy_loss(x,i)[0] for x,i in zip(X,y)))
-        #loss = self.cross_entropy_loss()
+        accu = sum(self.predict(X) == y) / len(y)
+        loss = np.mean(list(self.cross_entropy_loss(augment(x),i)[0] for x,i in zip(X,y)))
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -155,10 +158,9 @@ class LinearClassifier(object):
         # 3- Dont forget the regularization!                                        #
         # 4- Compute gradient => eq.(4.109)                                         #
         #############################################################################
-        x = augment(x)
-        a_k = np.dot(self.W.T, x)
+        a_k  = np.dot(self.W.T, x)
         loss = -1*np.log(np.exp(a_k)/sum(np.exp(a_k)))[y] + reg*np.linalg.norm(self.W)
-        #dW =
+        dW   = np.dot((a_k - y), x)
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
