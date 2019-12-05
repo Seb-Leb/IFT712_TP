@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
-
-#####
-# Jeremie Beliveau-Lefebvre (04494470)
-# Sebastien Leblanc         (18206273)
-###    /*
-
 """
 Execution dans un terminal
 
 Exemple:
    python non_lineaire_classification.py rbf 100 200 0 0
 
-"""               
+Vos Noms (Vos Matricules) .~= À MODIFIER =~.
+"""
 
 import numpy as np
 import sys
@@ -24,13 +19,7 @@ def analyse_erreur(err_train, err_test):
     Fonction qui affiche un WARNING lorsqu'il y a apparence de sur ou de sous
     apprentissage
     """
-    if err_train < 5. and err_test > 30.:       
-        print('WARNING: overfitting')             
-    if err_test >= 30. and err_train >= 30.:         
-    if err_train < 5. and err_test > 30.:
-        print('WARNING: overfitting')
-    if err_test >= 30. and err_train >= 30.:
-        print('WARNING: underfitting')
+    #AJOUTER CODE ICI
 
 def main():
 
@@ -61,13 +50,11 @@ def main():
     else:
         mp.validation_croisee(x_train, t_train)
 
-    # ~= À MODIFIER =~.
+    # ~= À MODIFIER =~. 
     # AJOUTER CODE AFIN DE CALCULER L'ERREUR D'APPRENTISSAGE
     # ET DE VALIDATION EN % DU NOMBRE DE POINTS MAL CLASSES
-
-    err_train  = (sum(t_train[n] != mp.prediction(x_train[n]) for n in range(nb_train))/nb_train)*100
-    err_train  = (sum(t_train[n] != mp.prediction(x_train[n]) for n in range(nb_train-1))/nb_train)*100
-    err_test   = (sum(t_test[n]  != mp.prediction(x_test[n])  for n in range(nb_test-1))/nb_test)*100
+    err_train = 50
+    err_test = 50
 
     print('Erreur train = ', err_train, '%')
     print('Erreur test = ', err_test, '%')

@@ -59,13 +59,13 @@ class MAPnoyau:
         #RBF kernel
         if self.noyau == 'rbf':
             # (x-y).T*(x-y) = x.T*x + y.T*y - 2*x.T*y
-            sq_norm = (x_train ** 2).sum(axis=1)# x.T*x
-            k    = np.dot(x_train, x_train.T)# x.T*y
-            k   *= -2                        # -2*x.T*y
-            k   += sq_norm.reshape(-1, 1)    # y.T*y - 2*x.T*y
-            k   += sq_norm                   # x.T*x +y.T*y - 2*x.T*y
-            k   *= (-1/(2*self.sigma_square))# -||x_i - x_j||^2 / 2*sigma^2
-            np.exp(k, k)                     # exp(-||x_i - x_j||^2 / 2*sigma^2)
+            sq_norm = (x_train ** 2).sum(axis=1)    # x.T*x
+            k    = np.dot(x_train, x_train.T)       # x.T*y
+            k   *= -2                               # -2*x.T*y
+            k   += sq_norm.reshape(-1, 1)           # y.T*y - 2*x.T*y
+            k   += sq_norm                          # x.T*x +y.T*y - 2*x.T*y
+            k   *= (-1/(2*self.sigma_square))       # -||x_i - x_j||^2 / 2*sigma^2
+            np.exp(k, k)                            # exp(-||x_i - x_j||^2 / 2*sigma^2)
 
         #Linear kernel
         if self.noyau == 'lineaire':
@@ -152,7 +152,7 @@ class MAPnoyau:
         de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
         """
         model_parameters = {
-                'lineaire'    : ['lamb', ],
+                'lineaire'    : ['lamb'],
                 'rbf'       : ['lamb', 'sigma_sq'],
                 'polynomial': ['lamb', 'c', 'M'],
                 'sigmoidal' : ['lamb', 'b', 'd']
@@ -188,7 +188,6 @@ class MAPnoyau:
                 'd'        : np.logspace(np.log10(1e-5), np.log10(0.01), bd_grid_size),
                 'M'        : np.arange(2, 7)
                 }
-
         pars = model_parameters[self.noyau]
         args_ls = [dict(zip(pars, x)) for x in itt.product(*[par_search_space[p] for p in pars])]
         meanerr_hyperpars = dict() # mean error as keys and hyperpars as values
@@ -204,6 +203,7 @@ class MAPnoyau:
 
 
 
+
     def affichage(self, x_tab, t_tab):
 
         # Affichage
@@ -216,4 +216,7 @@ class MAPnoyau:
 
         plt.contourf(iX, iY, contour_out > 0.5)
         plt.scatter(x_tab[:, 0], x_tab[:, 1], s=(t_tab + 0.5) * 100, c=t_tab, edgecolors='y')
+
+        plt.title('Testing data')     
+        plt.title(self.noyau)
         plt.show()
