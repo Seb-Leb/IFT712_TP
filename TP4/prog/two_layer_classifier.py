@@ -98,7 +98,7 @@ class TwoLayerClassifier(object):
                 y_pred = sigmoid(self.net.layer2.W.T, sigmoid(self.net.layer1.W.T, x)))
             elif self.activation == 'relu':
                 pass
-            return 0
+            return np.argmax(y_n)
             #############################################################################
             #                          END OF YOUR CODE                                 #
             #############################################################################
@@ -107,7 +107,11 @@ class TwoLayerClassifier(object):
             #############################################################################
             # TODO: return the most probable class label for many samples               #
             #############################################################################
-            return np.zeros(x.shape[0])
+            if self.activation == 'sigmoid':
+                pass
+            elif self.activation == 'relu':
+                pass
+            return np.array([np.argmax(y_n) for y_n in Y_n])
             #############################################################################
             #                          END OF YOUR CODE                                 #
             #############################################################################
@@ -233,7 +237,7 @@ class TwoLayerNet(object):
         softmax = np.exp(scores)/sum(np.exp(scores))
         D_y     = np.diag(softmax) - np.outer(softmax, softmax)
 
-        loss    = np.log(softmax[y]) - reg*(np.linalg.norm(self.W)**2)
+        loss    = -np.log(softmax[y])
         d_loss  = -y_1hot / softmax
         dloss_dscores = np.dot(d_loss, D_y)
 
@@ -284,7 +288,6 @@ class DenseLayer(object):
         # TODO: Compute forward pass.  Do not forget to add 1 to x in case of bias  #
         # C.f. function augment(x)                                                  #
         #############################################################################
-        f = self.W[1] ## REMOVE THIS LINE
         if self.bias:
             x = np.contatenate((x,[1.,]))
         y_n = np.dot(self.W.T, x)
