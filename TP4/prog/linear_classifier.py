@@ -1,10 +1,7 @@
-
-
 #####
 # Jeremie Beliveau-Lefebvre (04494470)
 # Sebastien Leblanc         (18206273)
 ###
-
 
 
 import numpy as np
@@ -100,7 +97,12 @@ class LinearClassifier(object):
         #############################################################################
         # TODO: Return the best class label.                                        #
         #############################################################################
-
+        if len(X.shape) > 1:
+            Y_w = np.array([np.dot(self.W.T, augment(x)) for x in X])
+            class_label = np.array([np.argmax(y_w) for y_w in Y_w])
+        else:
+            y_w = np.dot(self.W.T, np.concatenate([X, [1.]], axis=0))
+            class_label = np.argmax(y_w)
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -123,7 +125,8 @@ class LinearClassifier(object):
         #############################################################################
         # TODO: Compute the softmax loss & accuracy for a series of samples X,y .   #
         #############################################################################
-
+        accu = sum(self.predict(X) == y) / len(y)
+        loss = np.mean(list(self.cross_entropy_loss(augment(x), t, reg)[0] for x,t in zip(X,y)))
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -147,16 +150,28 @@ class LinearClassifier(object):
         # Initialize the loss and gradient to zero.
         loss = 0.0
         dW = np.zeros_like(self.W)
-
         #############################################################################
         # TODO: Compute the softmax loss and its gradient.                          #
         # Store the loss in loss and the gradient in dW.                            #
         # 1- Compute softmax => eq.(4.104) or eq.(5.25) Bishop                      #
         # 2- Compute cross-entropy loss => eq.(4.108)                               #
         # 3- Dont forget the regularization!                                        #
-        # 4- Compute gradient => eq.(4.104)                                         #
+        # 4- Compute gradient => eq.(4.109)                                         #
         #############################################################################
+        y_n  = np.dot(self.W.T, x)
 
+        y_1hot = np.zeros(self.num_classes)
+        y_1hot[y] = 1
+
+        softmax = np.exp(y_n)/sum(np.exp(y_n))
+        D_y     = np.diag(softmax) - np.outer(softmax, softmax)
+
+        loss    = np.log(softmax[y]) - reg*(np.linalg.norm(self.W)**2)
+        d_loss  = -y_1hot / softmax
+        #print(y, softmax, softmax[y], loss)
+        dW[y] = np.dot(d_loss, D_y)
+        #print(self.W)
+        #print(dW, '\n')
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
