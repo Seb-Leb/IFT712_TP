@@ -24,6 +24,9 @@ def analyse_erreur(err_train, err_test):
     Fonction qui affiche un WARNING lorsqu'il y a apparence de sur ou de sous
     apprentissage
     """
+    if err_train < 5. and err_test > 30.:       
+        print('WARNING: overfitting')             
+    if err_test >= 30. and err_train >= 30.:         
     if err_train < 5. and err_test > 30.:
         print('WARNING: overfitting')
     if err_test >= 30. and err_train >= 30.:
@@ -58,6 +61,11 @@ def main():
     else:
         mp.validation_croisee(x_train, t_train)
 
+    # ~= À MODIFIER =~.
+    # AJOUTER CODE AFIN DE CALCULER L'ERREUR D'APPRENTISSAGE
+    # ET DE VALIDATION EN % DU NOMBRE DE POINTS MAL CLASSES
+
+    err_train  = (sum(t_train[n] != mp.prediction(x_train[n]) for n in range(nb_train))/nb_train)*100
     err_train  = (sum(t_train[n] != mp.prediction(x_train[n]) for n in range(nb_train-1))/nb_train)*100
     err_test   = (sum(t_test[n]  != mp.prediction(x_test[n])  for n in range(nb_test-1))/nb_test)*100
 
