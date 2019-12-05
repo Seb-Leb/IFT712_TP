@@ -126,7 +126,7 @@ class LinearClassifier(object):
         # TODO: Compute the softmax loss & accuracy for a series of samples X,y .   #
         #############################################################################
         accu = sum(self.predict(X) == y) / len(y)
-        loss = np.mean(list(self.cross_entropy_loss(augment(x),i)[0] for x,i in zip(X,y)))
+        loss = np.mean(list(self.cross_entropy_loss(augment(x), t, reg)[0] for x,t in zip(X,y)))
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -158,9 +158,20 @@ class LinearClassifier(object):
         # 3- Dont forget the regularization!                                        #
         # 4- Compute gradient => eq.(4.109)                                         #
         #############################################################################
-        a_k  = np.dot(self.W.T, x)
-        loss = -1*np.log(np.exp(a_k)/sum(np.exp(a_k)))[y] + reg*np.linalg.norm(self.W)
-        dW   = np.dot((a_k - y), x)
+        y_n  = np.dot(self.W.T, x)
+
+        y_1hot = np.zeros(self.num_classes)
+        y_1hot[y] = 1
+
+        softmax = np.exp(y_n)/sum(np.exp(y_n))
+        D_y     = np.diag(softmax) - np.outer(softmax, softmax)
+
+        loss    = np.log(softmax[y]) - reg*(np.linalg.norm(self.W)**2)
+        d_loss  = -y_1hot / softmax
+        #print(y, softmax, softmax[y], loss)
+        dW[y] = np.dot(d_loss, D_y)
+        #print(self.W)
+        #print(dW, '\n')
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
