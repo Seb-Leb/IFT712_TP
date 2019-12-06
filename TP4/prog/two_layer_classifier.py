@@ -94,7 +94,11 @@ class TwoLayerClassifier(object):
             #############################################################################
             # TODO: return the most probable class label for one sample.                #
             #############################################################################
-            return 0
+            if self.activation == 'sigmoid':
+                y_pred = sigmoid(self.net.layer2.W.T, sigmoid(self.net.layer1.W.T, x)))
+            elif self.activation == 'relu':
+                pass
+            return np.argmax(y_n)
             #############################################################################
             #                          END OF YOUR CODE                                 #
             #############################################################################
@@ -103,7 +107,11 @@ class TwoLayerClassifier(object):
             #############################################################################
             # TODO: return the most probable class label for many samples               #
             #############################################################################
-            return np.zeros(x.shape[0])
+            if self.activation == 'sigmoid':
+                pass
+            elif self.activation == 'relu':
+                pass
+            return np.array([np.argmax(y_n) for y_n in Y_n])
             #############################################################################
             #                          END OF YOUR CODE                                 #
             #############################################################################
@@ -149,7 +157,7 @@ class TwoLayerClassifier(object):
         #############################################################################
         # TODO: update w with momentum                                              #
         #############################################################################
-        v=0 # remove this line
+        v = mu * v - lr * dw
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -223,6 +231,16 @@ class TwoLayerNet(object):
         # 4- Compute gradient with respect to the score => eq.(4.104) with phi_n=1  #
         #############################################################################
 
+        y_1hot = np.zeros(self.num_classes)
+        y_1hot[y] = 1
+
+        softmax = np.exp(scores)/sum(np.exp(scores))
+        D_y     = np.diag(softmax) - np.outer(softmax, softmax)
+
+        loss    = -np.log(softmax[y])
+        d_loss  = -y_1hot / softmax
+        dloss_dscores = np.dot(d_loss, D_y)
+
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -270,8 +288,13 @@ class DenseLayer(object):
         # TODO: Compute forward pass.  Do not forget to add 1 to x in case of bias  #
         # C.f. function augment(x)                                                  #
         #############################################################################
-        f = self.W[1] ## REMOVE THIS LINE
-
+        if self.bias:
+            x = np.contatenate((x,[1.,]))
+        y_n = np.dot(self.W.T, x)
+        if self.activation == 'sigmoid':
+            f = sigmoid(y_n)
+        elif self.activation == 'relu':
+            f = np.maximum(0, y_n)
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
