@@ -94,10 +94,7 @@ class TwoLayerClassifier(object):
             #############################################################################
             # TODO: return the most probable class label for one sample.                #
             #############################################################################
-            if self.activation == 'sigmoid':
-                y_pred = sigmoid(self.net.layer2.W.T, sigmoid(self.net.layer1.W.T, x)))
-            elif self.activation == 'relu':
-                pass
+            y_n = self.net.forward(x)
             return np.argmax(y_n)
             #############################################################################
             #                          END OF YOUR CODE                                 #
@@ -107,10 +104,7 @@ class TwoLayerClassifier(object):
             #############################################################################
             # TODO: return the most probable class label for many samples               #
             #############################################################################
-            if self.activation == 'sigmoid':
-                pass
-            elif self.activation == 'relu':
-                pass
+            Y_n = [self.net.forward(x_i) for x_i in x]
             return np.array([np.argmax(y_n) for y_n in Y_n])
             #############################################################################
             #                          END OF YOUR CODE                                 #
@@ -158,6 +152,7 @@ class TwoLayerClassifier(object):
         # TODO: update w with momentum                                              #
         #############################################################################
         v = mu * v - lr * dw
+        # update weights (slide p55)
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -237,7 +232,7 @@ class TwoLayerNet(object):
         softmax = np.exp(scores)/sum(np.exp(scores))
         D_y     = np.diag(softmax) - np.outer(softmax, softmax)
 
-        loss    = -np.log(softmax[y])
+        loss    = -np.log(softmax[y]) + self.l2_reg * np.linalg.norm(self.w)
         d_loss  = -y_1hot / softmax
         dloss_dscores = np.dot(d_loss, D_y)
 
@@ -289,7 +284,7 @@ class DenseLayer(object):
         # C.f. function augment(x)                                                  #
         #############################################################################
         if self.bias:
-            x = np.contatenate((x,[1.,]))
+            x = augment(x)#np.contatenate((x,[1.,]))
         y_n = np.dot(self.W.T, x)
         if self.activation == 'sigmoid':
             f = sigmoid(y_n)
