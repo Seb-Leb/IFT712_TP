@@ -164,15 +164,13 @@ class LinearClassifier(object):
         y_1hot[y] = 1
 
         softmax = np.exp(y_n)/sum(np.exp(y_n))
-        D_y     = np.diag(softmax) - np.outer(softmax, softmax)
 
-        loss    = -np.log(softmax[y]) + .5*reg*(np.linalg.norm(self.W)**2)
-        d_loss  = (-y_1hot / softmax) + reg*np.linalg.norm(self.W)
+        loss    = -np.log(softmax[y]) + reg*np.linalg.norm(self.W)
 
-        #dW      = D_y
-        dW      = np.dot(D_y, d_loss)
-        #print('W = {}\ny_n = {}\ny = {} | y_1hot = {}\nsoftmax = {}\nDy = {}\nloss = {}\ndloss = {}\ndW = {}'.format(self.W, y_n, y, y_1hot, softmax, D_y, loss, d_loss, dW), '\n--------')
-        #print(dW, '\n')
+        dW = np.dot(np.matrix(softmax - y_1hot).T , np.matrix(x) )
+        #dW = np.matrix(softmax - y_1hot).T * np.matrix(x) #+ reg*self.W
+
+        print('W = {}\nx = {}\ny_n = {}\ny = {} | y_1hot = {}\nsoftmax = {}\nloss = {}\ndW = {}'.format(self.W, x, y_n, y, y_1hot, softmax, loss, dW), '\n--------')
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
