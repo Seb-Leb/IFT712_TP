@@ -22,7 +22,7 @@ class LinearClassifier(object):
         self.num_features = num_features
         self.num_classes = num_classes
         self.W = self.generate_init_weights(0.01)
-
+ 
     def generate_init_weights(self, init_scale):
         return np.random.randn(self.num_features, self.num_classes) * init_scale
 
@@ -72,7 +72,6 @@ class LinearClassifier(object):
 
                 accu_train, loss_train = self.global_accuracy_and_cross_entropy_loss(self.x_train, self.y_train, l2_reg)
                 accu_val, loss_val, = self.global_accuracy_and_cross_entropy_loss(self.x_val, self.y_val, l2_reg)
-
                 loss_train_curve.append(loss_train)
                 loss_val_curve.append(loss_val)
                 accu_train_curve.append(accu_train)
@@ -80,7 +79,7 @@ class LinearClassifier(object):
 
                 sample_idx = 0
                 lr *= lr_decay
-
+                
         return loss_train_curve, loss_val_curve, accu_train_curve, accu_val_curve
 
     def predict(self, X):
@@ -108,7 +107,7 @@ class LinearClassifier(object):
         #############################################################################
         return class_label
 
-    def global_accuracy_and_cross_entropy_loss(self, X, y, reg=0.0):
+    def global_accuracy_and_cross_entropy_loss(self, X, y, reg=0.01):
         """
         Compute average accuracy and cross_entropy for a series of N data points.
         Naive implementation (with loop)
@@ -132,7 +131,7 @@ class LinearClassifier(object):
         #############################################################################
         return accu, loss
 
-    def cross_entropy_loss(self, x, y, reg=0.0):
+    def cross_entropy_loss(self, x, y, reg=0.01):
         """
         Cross-entropy loss function for one sample pair (X,y) (with softmax)
         C.f. Eq.(4.104 to 4.109) of Bishop book.
@@ -150,6 +149,7 @@ class LinearClassifier(object):
         # Initialize the loss and gradient to zero.
         loss = 0.0
         dW = np.zeros_like(self.W)
+
         #############################################################################
         # TODO: Compute the softmax loss and its gradient.                          #
         # Store the loss in loss and the gradient in dW.                            #
@@ -158,20 +158,22 @@ class LinearClassifier(object):
         # 3- Dont forget the regularization!                                        #
         # 4- Compute gradient => eq.(4.109)                                         #
         #############################################################################
-        y_n  = np.dot(self.W.T, x)
-
+        
+        #    Variables declaration
         y_1hot = np.zeros(self.num_classes)
         y_1hot[y] = 1
-
+        _1 = np.ones(self.num_classes)
+        
+        #    Formatting
+        y_n  = np.dot(self.W.T, x)
+                
+        #    Calculation of softmax and loss
         softmax = np.exp(y_n)/sum(np.exp(y_n))
-        D_y     = np.diag(softmax) - np.outer(softmax, softmax)
+        loss    = -np.log(softmax[y]) - reg*(np.linalg.norm(self.W)**2)
 
-        loss    = np.log(softmax[y]) - reg*(np.linalg.norm(self.W)**2)
-        d_loss  = -y_1hot / softmax
-        #print(y, softmax, softmax[y], loss)
-        dW[y] = np.dot(d_loss, D_y)
-        #print(self.W)
-        #print(dW, '\n')
+        #    Utilisation des bonnes fonctions:
+        dW = np.dot( np.matrix(x).T, np.matrix(softmax - y_1hot) )
+
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
