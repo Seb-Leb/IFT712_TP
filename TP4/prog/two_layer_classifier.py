@@ -94,11 +94,12 @@ class TwoLayerClassifier(object):
             #############################################################################
             # TODO: return the most probable class label for one sample.                #
             #############################################################################
-            if self.activation == 'sigmoid':
-                y_pred = sigmoid(self.net.layer2.W.T, sigmoid(self.net.layer1.W.T, x)))
-            elif self.activation == 'relu':
-                pass
-            return np.argmax(y_n)
+            if self.net.layer1.activation == 'sigmoid':
+                y_pred = sigmoid(self.net.layer2.W.T, sigmoid(self.net.layer1.W.T, x))
+            elif self.net.layer1.activation == 'relu':
+                y_pred = sigmoid(self.net.layer2.W.T, relu(self.net.layer1.W.T, x))
+            return np.argmax(y_pred)
+        
             #############################################################################
             #                          END OF YOUR CODE                                 #
             #############################################################################
@@ -107,11 +108,13 @@ class TwoLayerClassifier(object):
             #############################################################################
             # TODO: return the most probable class label for many samples               #
             #############################################################################
-            if self.activation == 'sigmoid':
-                pass
-            elif self.activation == 'relu':
-                pass
+            if self.net.layer1.activation == 'sigmoid':
+                Y_n = np.array([sigmoid(self.net.layer2.W.T, sigmoid(self.net.layer1.W.T, _x)) for _x in x])
+            elif self.net.layer1.activation == 'relu':
+                Y_n = np.array([sigmoid(self.net.layer2.W.T, relu(self.net.layer1.W.T, _x)) for _x in x])
             return np.array([np.argmax(y_n) for y_n in Y_n])
+       
+  
             #############################################################################
             #                          END OF YOUR CODE                                 #
             #############################################################################
@@ -135,8 +138,9 @@ class TwoLayerClassifier(object):
         accu = 0
         #############################################################################
         # TODO: Compute the softmax loss & accuracy for a series of samples X,y .   #
-        #############################################################################
-
+        #############################################################################        
+        accu = sum(self.predict(x) == y) / len(y)
+        loss = np.mean(list(self.cross_entropy_loss(augment(x), t, l2_r)[0] for x,t in zip(X,y)))
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -291,9 +295,9 @@ class DenseLayer(object):
         if self.bias:
             x = np.contatenate((x,[1.,]))
         y_n = np.dot(self.W.T, x)
-        if self.activation == 'sigmoid':
+        if self.net.activation == 'sigmoid':
             f = sigmoid(y_n)
-        elif self.activation == 'relu':
+        elif self.net.activation == 'relu':
             f = np.maximum(0, y_n)
         #############################################################################
         #                          END OF YOUR CODE                                 #
