@@ -244,22 +244,23 @@ class TwoLayerNet(object):
         y_1hot = np.zeros(self.num_classes)
         y_1hot[y] = 1
         
-        #    Formatting
-        y_n  = np.dot(y_1hot, scores)
-        
         #    Calculation of softmax and loss
-        softmax = np.exp(y_n)/sum(np.exp(scores))
-        loss    = -np.log(softmax)
+        softmax = np.exp(scores)/sum(np.exp(scores))
+        loss    = -np.log(softmax[y])
 
+        #print("Pass")
+        #print(scores)
+        #print(softmax)
+ 
         #    Utilisation des bonnes fonctions:
         dloss_dscores = np.dot( np.matrix(scores).T, np.matrix(softmax - y_1hot) )
-        print("Loss")
-        print(loss)
-        print("dloss")
-        print(np.matrix(scores).T)
-        print(np.matrix(softmax - y_1hot))
-        print(softmax)
-        print(dloss_dscores)
+        #print("Loss")
+        #print(loss)
+        #print("dloss")
+        #print(np.matrix(scores).T)
+        #print(np.matrix(softmax - y_1hot))
+        #print(softmax)
+        #print(dloss_dscores)
         
         #############################################################################
         #                          END OF YOUR CODE                                 #
@@ -334,6 +335,7 @@ class DenseLayer(object):
             dnext_dW = self.last_x[:, np.newaxis] * dnext_drelu[np.newaxis, :]
             dnext_dX = dnext_drelu.dot(self.W.T)
         else:
+            print(dnext_dout[np.newaxis, :])
             dnext_dW = self.last_x[:, np.newaxis].dot(dnext_dout[np.newaxis, :])
             dnext_dX = dnext_dout.dot(self.W.T)
         dnext_dX = dnext_dX[:-1]  # discard the gradient wrt the 1.0 of homogeneous coord
