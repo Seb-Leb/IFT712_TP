@@ -57,8 +57,8 @@ class TwoLayerClassifier(object):
             y_sample = self.y_train[sample_idx]
 
             # Forward + Backward
-            loss_train = self.net.forward_backward(x_sample, y_sample)
-
+            loss_train = self.net.forward_backward(x_sample, y_sample)     
+    
             # Take gradient step
             for w, dw in zip(self.net.parameters, self.net.gradients):
                 self.momentum_update(w, dw, lr, momentum)
@@ -166,7 +166,7 @@ class TwoLayerClassifier(object):
         #############################################################################
         # TODO: update w with momentum                                              #
         #############################################################################
-        v = mu * v - lr * dw
+        v = mu * v_prev - lr * dw
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -189,12 +189,13 @@ class TwoLayerNet(object):
         self.layer1.reinit()
         self.layer2.reinit()
 
-    def forward(self, x):
+    def forward(self, x):        
         x1 = self.layer1.forward(x)
         x2 = self.layer2.forward(x1)
         return x2
 
     def backward_(self, dloss_dscores):
+        #self.layer2.
         dx = self.layer2.backward(dloss_dscores, self.l2_reg)
         self.layer1.backward(dx, self.l2_reg)
 
@@ -244,23 +245,12 @@ class TwoLayerNet(object):
         y_1hot = np.zeros(self.num_classes)
         y_1hot[y] = 1
         
-        #    Calculation of softmax and loss
+       #    Calculation of softmax and loss
         softmax = np.exp(scores)/sum(np.exp(scores))
         loss    = -np.log(softmax[y])
 
-        #print("Pass")
-        #print(scores)
-        #print(softmax)
- 
         #    Utilisation des bonnes fonctions:
-        dloss_dscores = np.dot( np.matrix(scores).T, np.matrix(softmax - y_1hot) )
-        #print("Loss")
-        #print(loss)
-        #print("dloss")
-        #print(np.matrix(scores).T)
-        #print(np.matrix(softmax - y_1hot))
-        #print(softmax)
-        #print(dloss_dscores)
+        dloss_dscores = np.dot(scores.T, (softmax[y] - y_1hot[y]))
         
         #############################################################################
         #                          END OF YOUR CODE                                 #
@@ -309,12 +299,14 @@ class DenseLayer(object):
         # TODO: Compute forward pass.  Do not forget to add 1 to x in case of bias  #
         # C.f. function augment(x)                                                  #
         #############################################################################
+
         y_n = np.dot(self.W.T, x)
         f = y_n
         if self.activation == 'sigmoid':
             f = sigmoid(y_n)
         elif self.activation == 'relu':
             f = np.maximum(0, y_n)
+
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -335,7 +327,6 @@ class DenseLayer(object):
             dnext_dW = self.last_x[:, np.newaxis] * dnext_drelu[np.newaxis, :]
             dnext_dX = dnext_drelu.dot(self.W.T)
         else:
-            print(dnext_dout[np.newaxis, :])
             dnext_dW = self.last_x[:, np.newaxis].dot(dnext_dout[np.newaxis, :])
             dnext_dX = dnext_dout.dot(self.W.T)
         dnext_dX = dnext_dX[:-1]  # discard the gradient wrt the 1.0 of homogeneous coord
