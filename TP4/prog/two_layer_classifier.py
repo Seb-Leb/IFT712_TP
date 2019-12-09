@@ -95,9 +95,9 @@ class TwoLayerClassifier(object):
             # TODO: return the most probable class label for one sample.                #
             #############################################################################
             if self.net.layer1.activation == 'sigmoid':
-                y_pred = sigmoid(self.net.layer2.W.T, sigmoid(self.net.layer1.W.T, x))
+                y_pred = sigmoid(np.dot(self.net.layer2.W.T, augment(np.dot(self.net.layer1.W.T, augment(_x)))))
             elif self.net.layer1.activation == 'relu':
-                y_pred = sigmoid(self.net.layer2.W.T, relu(self.net.layer1.W.T, x))
+                y_pred = sigmoid(np.dot(self.net.layer2.W.T, augment(np.maximum(0, np.dot(self.net.layer1.W.T, augment(_x))))))
             return np.argmax(y_pred)
         
             #############################################################################
@@ -109,9 +109,10 @@ class TwoLayerClassifier(object):
             # TODO: return the most probable class label for many samples               #
             #############################################################################
             if self.net.layer1.activation == 'sigmoid':
-                Y_n = np.array([sigmoid(self.net.layer2.W.T, sigmoid(self.net.layer1.W.T, _x)) for _x in x])
+                Y_n = np.array([sigmoid(np.dot(self.net.layer2.W.T, augment(np.dot(self.net.layer1.W.T, augment(_x))))) for _x in x])
             elif self.net.layer1.activation == 'relu':
-                Y_n = np.array([sigmoid(self.net.layer2.W.T, relu(self.net.layer1.W.T, _x)) for _x in x])
+                #    Function that return the reLu of WtX
+                Y_n = np.array([sigmoid(np.dot(self.net.layer2.W.T, augment(np.maximum(0, np.dot(self.net.layer1.W.T, augment(_x)))))) for _x in x])
             return np.array([np.argmax(y_n) for y_n in Y_n])
        
   
@@ -131,6 +132,7 @@ class TwoLayerClassifier(object):
         - average accuracy as single float
         - average loss as single float
         """
+                    
         if l2_r > 0:
             self.net.l2_reg = l2_r
 
@@ -140,7 +142,10 @@ class TwoLayerClassifier(object):
         # TODO: Compute the softmax loss & accuracy for a series of samples X,y .   #
         #############################################################################        
         accu = sum(self.predict(x) == y) / len(y)
-        loss = np.mean(list(self.cross_entropy_loss(augment(x), t, l2_r)[0] for x,t in zip(X,y)))
+        loss = np.mean(list(self.net.cross_entropy_loss(self.net.forward(_x), _y)[0] for _x,_y in zip(x,y)))
+        if l2_r > 0 :
+             loss+= l2_r*(np.linalg.norm(self.net.layer1.W)**2 + np.linalg.norm(self.net.layer2.W)**2)
+
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -234,17 +239,28 @@ class TwoLayerNet(object):
         # 3- Dont forget the regularization!                                        #
         # 4- Compute gradient with respect to the score => eq.(4.104) with phi_n=1  #
         #############################################################################
-
+        
+        #    Variables declaration
         y_1hot = np.zeros(self.num_classes)
         y_1hot[y] = 1
+        
+        #    Formatting
+        y_n  = np.dot(y_1hot, scores)
+        
+        #    Calculation of softmax and loss
+        softmax = np.exp(y_n)/sum(np.exp(scores))
+        loss    = -np.log(softmax)
 
-        softmax = np.exp(scores)/sum(np.exp(scores))
-        D_y     = np.diag(softmax) - np.outer(softmax, softmax)
-
-        loss    = -np.log(softmax[y])
-        d_loss  = -y_1hot / softmax
-        dloss_dscores = np.dot(d_loss, D_y)
-
+        #    Utilisation des bonnes fonctions:
+        dloss_dscores = np.dot( np.matrix(scores).T, np.matrix(softmax - y_1hot) )
+        print("Loss")
+        print(loss)
+        print("dloss")
+        print(np.matrix(scores).T)
+        print(np.matrix(softmax - y_1hot))
+        print(softmax)
+        print(dloss_dscores)
+        
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -292,12 +308,11 @@ class DenseLayer(object):
         # TODO: Compute forward pass.  Do not forget to add 1 to x in case of bias  #
         # C.f. function augment(x)                                                  #
         #############################################################################
-        if self.bias:
-            x = np.contatenate((x,[1.,]))
         y_n = np.dot(self.W.T, x)
-        if self.net.activation == 'sigmoid':
+        f = y_n
+        if self.activation == 'sigmoid':
             f = sigmoid(y_n)
-        elif self.net.activation == 'relu':
+        elif self.activation == 'relu':
             f = np.maximum(0, y_n)
         #############################################################################
         #                          END OF YOUR CODE                                 #
