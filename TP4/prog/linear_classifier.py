@@ -158,18 +158,17 @@ class LinearClassifier(object):
         # 3- Dont forget the regularization!                                        #
         # 4- Compute gradient => eq.(4.109)                                         #
         #############################################################################
-        
+           
         #    Variables declaration
         y_1hot = np.zeros(self.num_classes)
         y_1hot[y] = 1
-        _1 = np.ones(self.num_classes)
         
         #    Formatting
         y_n  = np.dot(self.W.T, x)
-                
+        
         #    Calculation of softmax and loss
         softmax = np.exp(y_n)/sum(np.exp(y_n))
-        loss    = -np.log(softmax[y]) - reg*(np.linalg.norm(self.W)**2)
+        loss    = -np.log(softmax[y]) + reg*(np.linalg.norm(self.W)**2)
 
         #    Utilisation des bonnes fonctions:
         dW = np.dot( np.matrix(x).T, np.matrix(softmax - y_1hot) )
