@@ -186,7 +186,6 @@ class TwoLayerNet(object):
         return x2
 
     def backward_(self, dloss_dscores):
-        #print(dloss_dscores)
         dx = self.layer2.backward(dloss_dscores, self.l2_reg)
         self.layer1.backward(dx, self.l2_reg)
 
@@ -242,13 +241,7 @@ class TwoLayerNet(object):
         loss   += self.l2_reg*(np.linalg.norm(self.layer1.W)**2 + np.linalg.norm(self.layer2.W)**2)
 
         #    Compute gradient
-        #print((softmax-y_1hot).shape)
-        #print(scores.shape)
-        #dloss_dscores  = scores[:, np.newaxis].dot((softmax - y_1hot)[np.newaxis, :])
         dloss_dscores  = softmax - y_1hot
-        #print( 'score/dl_ds', scores.shape, dloss_dscores.shape)
-        #print('lastx/W2', self.layer2.last_x, self.layer2.W.shape)
-        #np.dot(scores.T, softmax - y_1hot)
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
