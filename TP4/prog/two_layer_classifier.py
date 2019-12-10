@@ -239,7 +239,7 @@ class TwoLayerNet(object):
         #    Compute softmax $ xent
         softmax = np.exp(scores)/sum(np.exp(scores))
         loss    = -np.log(softmax[y])
-        loss   += self.l2_reg*(np.linalg.norm(self.layer1.W**2 + np.linalg.norm(self.layer2).W**2))
+        loss   += self.l2_reg*(np.linalg.norm(self.layer1.W)**2 + np.linalg.norm(self.layer2.W)**2)
 
         #    Compute gradient
         dloss_dscores  = np.dot(np.matrix(softmax - y_1hot), np.matrix(scores))
