@@ -244,9 +244,8 @@ class TwoLayerNet(object):
         #    Compute gradient
         #dW1 =
         #dW2 = np.dot(np.matrix(scores.T), np.matrix(softmax[y] - y_1hot[y]))
-        #dloss_dscores = [dW1, dW2]
-        dloss_dscores  = np.dot(np.matrix(self.layer2.last_activ).T, np.matrix(softmax - y_1hot))
-        dloss_dscores += self.l2_reg*self.layer2.W
+        dloss_dscores  = np.dot(np.matrix(softmax - y_1hot), np.matrix(scores).T)
+        #dloss_dscores += self.l2_reg*self.layer2.W
         #print( 'score/dl_ds', scores.shape, dloss_dscores.shape)
         #print('lastx/W2', self.layer2.last_x, self.layer2.W.shape)
         #for n,W in self.parameters:
