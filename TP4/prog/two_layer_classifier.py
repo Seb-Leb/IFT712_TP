@@ -57,8 +57,8 @@ class TwoLayerClassifier(object):
             y_sample = self.y_train[sample_idx]
 
             # Forward + Backward
-            loss_train = self.net.forward_backward(x_sample, y_sample)     
-    
+            loss_train = self.net.forward_backward(x_sample, y_sample)
+
             # Take gradient step
             for w, dw in zip(self.net.parameters, self.net.gradients):
                 self.momentum_update(w, dw, lr, momentum)
@@ -94,12 +94,9 @@ class TwoLayerClassifier(object):
             #############################################################################
             # TODO: return the most probable class label for one sample.                #
             #############################################################################
-            if self.net.layer1.activation == 'sigmoid':
-                y_pred = sigmoid(np.dot(self.net.layer2.W.T, augment(np.dot(self.net.layer1.W.T, augment(_x)))))
-            elif self.net.layer1.activation == 'relu':
-                y_pred = sigmoid(np.dot(self.net.layer2.W.T, augment(np.maximum(0, np.dot(self.net.layer1.W.T, augment(_x))))))
+            y_pred = self.net.forward(x)
             return np.argmax(y_pred)
-        
+
             #############################################################################
             #                          END OF YOUR CODE                                 #
             #############################################################################
@@ -108,14 +105,10 @@ class TwoLayerClassifier(object):
             #############################################################################
             # TODO: return the most probable class label for many samples               #
             #############################################################################
-            if self.net.layer1.activation == 'sigmoid':
-                Y_n = np.array([sigmoid(np.dot(self.net.layer2.W.T, augment(np.dot(self.net.layer1.W.T, augment(_x))))) for _x in x])
-            elif self.net.layer1.activation == 'relu':
-                #    Function that return the reLu of WtX
-                Y_n = np.array([sigmoid(np.dot(self.net.layer2.W.T, augment(np.maximum(0, np.dot(self.net.layer1.W.T, augment(_x)))))) for _x in x])
+            Y_n = np.array([self.net.forward(x_n) for x_n in x])
             return np.array([np.argmax(y_n) for y_n in Y_n])
-       
-  
+
+
             #############################################################################
             #                          END OF YOUR CODE                                 #
             #############################################################################
@@ -132,7 +125,7 @@ class TwoLayerClassifier(object):
         - average accuracy as single float
         - average loss as single float
         """
-                    
+
         if l2_r > 0:
             self.net.l2_reg = l2_r
 
@@ -140,12 +133,9 @@ class TwoLayerClassifier(object):
         accu = 0
         #############################################################################
         # TODO: Compute the softmax loss & accuracy for a series of samples X,y .   #
-        #############################################################################        
+        #############################################################################
         accu = sum(self.predict(x) == y) / len(y)
         loss = np.mean(list(self.net.cross_entropy_loss(self.net.forward(_x), _y)[0] for _x,_y in zip(x,y)))
-        if l2_r > 0 :
-             loss+= l2_r*(np.linalg.norm(self.net.layer1.W)**2 + np.linalg.norm(self.net.layer2.W)**2)
-
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -166,7 +156,8 @@ class TwoLayerClassifier(object):
         #############################################################################
         # TODO: update w with momentum                                              #
         #############################################################################
-        v = mu * v_prev - lr * dw
+        v = mu * v_prev - dw
+        w = w - lr * v
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -189,13 +180,13 @@ class TwoLayerNet(object):
         self.layer1.reinit()
         self.layer2.reinit()
 
-    def forward(self, x):        
+    def forward(self, x):
         x1 = self.layer1.forward(x)
         x2 = self.layer2.forward(x1)
         return x2
 
     def backward_(self, dloss_dscores):
-        #self.layer2.
+        print(dloss_dscores)
         dx = self.layer2.backward(dloss_dscores, self.l2_reg)
         self.layer1.backward(dx, self.l2_reg)
 
@@ -240,23 +231,31 @@ class TwoLayerNet(object):
         # 3- Dont forget the regularization!                                        #
         # 4- Compute gradient with respect to the score => eq.(4.104) with phi_n=1  #
         #############################################################################
-        
-        #    Variables declaration
+
+        #    Target one-hot
         y_1hot = np.zeros(self.num_classes)
         y_1hot[y] = 1
-        
-       #    Calculation of softmax and loss
+
+        #    Compute softmax $ xent
         softmax = np.exp(scores)/sum(np.exp(scores))
         loss    = -np.log(softmax[y])
+        #loss   += self.l2_reg*(self.layer1.W**2 + self.layer2.W**2)
 
-        #    Utilisation des bonnes fonctions:
-        dloss_dscores = np.dot(scores.T, (softmax[y] - y_1hot[y]))
-        
+        #    Compute gradient
+        #dW1 =
+        #dW2 = np.dot(np.matrix(scores.T), np.matrix(softmax[y] - y_1hot[y]))
+        #dloss_dscores = [dW1, dW2]
+        dloss_dscores  = np.dot(np.matrix(self.layer2.last_x).T, np.matrix(softmax - y_1hot))
+        dloss_dscores += self.l2_reg*self.layer2.W
+        #print( 'score/dl_ds', scores.shape, dloss_dscores.shape)
+        #print('lastx/W2', self.layer2.last_x, self.layer2.W.shape)
+        #for n,W in self.parameters:
+
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
 
-        return loss, dloss_dscores
+        return loss, dloss_dscores.T
 
 
 class DenseLayer(object):
@@ -306,6 +305,8 @@ class DenseLayer(object):
             f = sigmoid(y_n)
         elif self.activation == 'relu':
             f = np.maximum(0, y_n)
+        elif self.activation is None:
+            f = y_n
 
         #############################################################################
         #                          END OF YOUR CODE                                 #

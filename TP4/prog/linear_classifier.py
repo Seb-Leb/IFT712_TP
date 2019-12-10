@@ -22,7 +22,7 @@ class LinearClassifier(object):
         self.num_features = num_features
         self.num_classes = num_classes
         self.W = self.generate_init_weights(0.01)
- 
+
     def generate_init_weights(self, init_scale):
         return np.random.randn(self.num_features, self.num_classes) * init_scale
 
@@ -79,7 +79,7 @@ class LinearClassifier(object):
 
                 sample_idx = 0
                 lr *= lr_decay
-                
+
         return loss_train_curve, loss_val_curve, accu_train_curve, accu_val_curve
 
     def predict(self, X):
@@ -158,20 +158,20 @@ class LinearClassifier(object):
         # 3- Dont forget the regularization!                                        #
         # 4- Compute gradient => eq.(4.109)                                         #
         #############################################################################
-           
+
         #    Variables declaration
         y_1hot = np.zeros(self.num_classes)
         y_1hot[y] = 1
-        
+
         #    Formatting
         y_n  = np.dot(self.W.T, x)
-        
+
         #    Calculation of softmax and loss
         softmax = np.exp(y_n)/sum(np.exp(y_n))
         loss    = -np.log(softmax[y]) + reg*(np.linalg.norm(self.W)**2)
 
         #    Utilisation des bonnes fonctions:
-        dW = np.dot( np.matrix(x).T, np.matrix(softmax - y_1hot) )
+        dW = np.dot( np.matrix(x).T, np.matrix(softmax - y_1hot) ) + reg*self.W
 
         #############################################################################
         #                          END OF YOUR CODE                                 #
